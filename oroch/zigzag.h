@@ -21,8 +21,8 @@
 // THE SOFTWARE.
 //
 
-#ifndef OROCH_ZIGZAG_CODEC_H_
-#define OROCH_ZIGZAG_CODEC_H_
+#ifndef OROCH_ZIGZAG_H_
+#define OROCH_ZIGZAG_H_
 
 #include "integer_traits.h"
 
@@ -61,4 +61,4 @@ using zigzag64_codec = zigzag_codec<std::int64_t>;
 
 } // namespace oroch
 
-#endif /* OROCH_ZIGZAG_CODEC_H_ */
+#endif /* OROCH_ZIGZAG_H_ */
