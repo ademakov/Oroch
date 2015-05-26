@@ -24,9 +24,8 @@
 #ifndef OROCH_ZIGZAG_H_
 #define OROCH_ZIGZAG_H_
 
-#include "integer_traits.h"
-
-#include <cstdint>
+#include <type_traits>
+#include <oroch/integer_traits.h>
 
 namespace oroch {
 
@@ -35,13 +34,14 @@ namespace oroch {
  *
  * https://developers.google.com/protocol-buffers/docs/encoding
  */
-template <typename T>
+template<typename T>
 struct zigzag_codec
 {
-	using signed_t = typename integer_traits<T>::signed_t;
-	using unsigned_t = typename integer_traits<T>::unsigned_t;
+	using original_t = T;
+	using signed_t = typename integer_traits<original_t>::signed_t;
+	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 
-	static constexpr int sign_shift = integer_traits<T>::nbits - 1;
+	static constexpr int sign_shift = integer_traits<signed_t>::nbits - 1;
 
 	static unsigned_t
 	encode(signed_t s)
@@ -54,10 +54,39 @@ struct zigzag_codec
 	{
 		return (u >> 1) ^ -((signed_t) (u & 1));
 	}
-};
 
-using zigzag32_codec = zigzag_codec<std::int32_t>;
-using zigzag64_codec = zigzag_codec<std::int64_t>;
+	template<typename S = original_t,
+		 typename std::enable_if<std::is_signed<S>::value>::type* = nullptr>
+	static unsigned_t
+	encode_if_signed(original_t v)
+	{
+		return encode(v);
+	}
+
+	template<typename S = original_t,
+		 typename std::enable_if<std::is_unsigned<S>::value>::type* = nullptr>
+	static unsigned_t
+	encode_if_signed(original_t v)
+	{
+		return v;
+	}
+
+	template<typename S = original_t,
+		 typename std::enable_if<std::is_signed<S>::value>::type* = nullptr>
+	static original_t
+	decode_if_signed(unsigned_t v)
+	{
+		return decode(v);
+	}
+
+	template<typename S = original_t,
+		 typename std::enable_if<std::is_unsigned<S>::value>::type* = nullptr>
+	static original_t
+	decode_if_signed(unsigned_t v)
+	{
+		return v;
+	}
+};
 
 } // namespace oroch
 
