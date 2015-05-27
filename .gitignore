@@ -1,3 +1,26 @@
+# Various backup files
+*~
+
+# IDE settings
+/.project
+/.cproject
+/.settings
+/nbproject
+
+# Autotools files
+Makefile
+Makefile.in
+
+/aclocal.m4
+/autom4te.cache
+/configure
+/config.log
+/config.status
+/build-aux
+/oroch/config.h
+/oroch/config.h.in
+/oroch/stamp-h1
+
 # Compiled Object files
 *.slo
 *.lo
