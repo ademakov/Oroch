@@ -7,4 +7,5 @@ noinst_PROGRAMS = unit_tests
 unit_tests_SOURCES = \
     catch.hpp \
     main.cc \
+    varint.cc \
     zigzag.cc
