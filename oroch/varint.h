@@ -32,6 +32,17 @@
 
 namespace oroch {
 
+//
+// Variable byte encoding of integers. Every byte of the encoded data
+// represents a 7-bit group from the original integer. The 8th bit is used as
+// a continuation mark. The encoded data omits those 7-bit groups that include
+// only zero bits and are located at the MSB end of the integer.
+//
+// This encoding is only good for unsigned integers if they are not too big on
+// average.
+//
+// The codec automatically applies zigzag encoding if used on signed types.
+//
 template <typename T>
 class varint_codec
 {

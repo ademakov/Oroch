@@ -29,11 +29,11 @@
 
 namespace oroch {
 
-/*
- * ZigZag encoding of signed integers as described here:
- *
- * https://developers.google.com/protocol-buffers/docs/encoding
- */
+//
+// ZigZag encoding of signed integers as described here:
+//
+// https://developers.google.com/protocol-buffers/docs/encoding
+//
 template<typename T>
 struct zigzag_codec
 {
