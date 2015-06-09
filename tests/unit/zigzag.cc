@@ -55,8 +55,8 @@ TEST_CASE("zigzag codec for int64_t", "[zigzag]") {
 }
 
 TEST_CASE("zigzag codec conditional methods", "[zigzag]") {
-	REQUIRE(oroch::zigzag_codec<int32_t>::encode_if_signed(1) == 2);
-	REQUIRE(oroch::zigzag_codec<uint32_t>::encode_if_signed(1) == 1);
-	REQUIRE(oroch::zigzag_codec<int32_t>::decode_if_signed(2) == 1);
-	REQUIRE(oroch::zigzag_codec<uint32_t>::decode_if_signed(2) == 2);
+	REQUIRE(oroch::zigzag_codec<int32_t>().encode_if_signed(1) == 2);
+	REQUIRE(oroch::zigzag_codec<uint32_t>().encode_if_signed(1) == 1);
+	REQUIRE(oroch::zigzag_codec<int32_t>().decode_if_signed(2) == 1);
+	REQUIRE(oroch::zigzag_codec<uint32_t>().decode_if_signed(2) == 2);
 }

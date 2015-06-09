@@ -41,7 +41,6 @@ class bitblk_codec
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using value_codec = zigzag_codec<original_t>;
 
 	static constexpr size_t block_size = 16;
 	static constexpr size_t block_nbits = block_size * 8;
@@ -53,11 +52,13 @@ public:
 		return block_nbits / nbits;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename DstIter, typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
 	encode(const size_t nbits,
 	       DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	       SrcIter &sbegin, SrcIter const send,
+	       ValueCodec value_codec = ValueCodec())
 	{
 		size_t size = std::distance(dbegin, dend);
 		if (size < block_size)
@@ -77,7 +78,7 @@ public:
 			if (src == send)
 				goto done;
 
-			uint64_t value = value_codec::encode_if_signed(*src++);
+			uint64_t value = value_codec.encode_if_signed(*src++);
 			buf[0] |= (value & mask) << shift;
 			shift += nbits;
 		}
@@ -92,7 +93,7 @@ public:
 			size_t mask1 = (1ul << nbits1) - 1;
 			size_t mask2 = (1ul << nbits2) - 1;
 
-			uint64_t value = value_codec::encode_if_signed(*src++);
+			uint64_t value = value_codec.encode_if_signed(*src++);
 			buf[0] |= (value & mask1) << shift;
 			buf[1] |= (value >> nbits1) & mask2;
 			shift = nbits2;
@@ -102,7 +103,7 @@ public:
 			if (src == send)
 				goto done;
 
-			uint64_t value = value_codec::encode_if_signed(*src++);
+			uint64_t value = value_codec.encode_if_signed(*src++);
 			buf[1] |= (value & mask) << shift;
 			shift += nbits;
 		}
@@ -118,11 +119,13 @@ public:
 		return true;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename DstIter, typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
 	decode(size_t nbits,
 	       DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	       SrcIter &sbegin, SrcIter const send,
+	       ValueCodec value_codec = ValueCodec())
 	{
 		size_t size = std::distance(sbegin, send);
 		if (size < block_size)
@@ -148,7 +151,7 @@ public:
 				goto done;
 
 			uint64_t value = (buf[0] >> shift) & mask;
-			*dst++ = value_codec::decode_if_signed(value);
+			*dst++ = value_codec.decode_if_signed(value);
 			shift += nbits;
 		}
 		if (shift == 64) {
@@ -165,7 +168,7 @@ public:
 			uint64_t value = 0;
 			value |= (buf[0] >> shift) & mask1;
 			value |= (buf[1] & mask2) << nbits1;
-			*dst++ = value_codec::decode_if_signed(value);
+			*dst++ = value_codec.decode_if_signed(value);
 			shift = nbits2;
 			n--;
 		}
@@ -174,7 +177,7 @@ public:
 				goto done;
 
 			uint64_t value = (buf[1] >> shift) & mask;
-			*dst++ = value_codec::decode_if_signed(value);
+			*dst++ = value_codec.decode_if_signed(value);
 			shift += nbits;
 		}
 
