@@ -52,6 +52,20 @@ public:
 		return block_nbits / nbits;
 	}
 
+	/* The number of blocks to fit given number of integers. */
+	static constexpr size_t
+	block_number(size_t nbits, size_t nvalues)
+	{
+		return (nvalues + capacity(nbits) - 1) / capacity(nbits);
+	}
+
+	/* The number of bytes to fit given number of integers. */
+	static constexpr size_t
+	block_volume(size_t nbits, size_t nvalues)
+	{
+		return block_size * block_number(nbits, nvalues);
+	}
+
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
