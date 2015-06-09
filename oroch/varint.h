@@ -59,7 +59,7 @@ public:
 	encode(DstIter &dbegin, DstIter const dend, original_t src)
 	{
 		DstIter dst = dbegin;
-		unsigned_t value = value_codec().encode_if_signed(src);
+		unsigned_t value = value_codec().value_encode(src);
 
 		while (value >= 0x80) {
 			if (dst >= dend)
@@ -104,7 +104,7 @@ public:
 			}
 		}
 
-		dst = value_codec().decode_if_signed(value);
+		dst = value_codec().value_decode(value);
 		sbegin = src;
 		return true;
 	}

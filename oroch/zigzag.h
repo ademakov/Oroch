@@ -59,7 +59,7 @@ struct zigzag_codec
 
 	template<typename S = original_t,
 		 typename std::enable_if<std::is_signed<S>::value>::type* = nullptr>
-	unsigned_t
+	static unsigned_t
 	encode_if_signed(original_t v)
 	{
 		return encode(v);
@@ -67,7 +67,7 @@ struct zigzag_codec
 
 	template<typename S = original_t,
 		 typename std::enable_if<std::is_unsigned<S>::value>::type* = nullptr>
-	unsigned_t
+	static unsigned_t
 	encode_if_signed(original_t v)
 	{
 		return v;
@@ -75,7 +75,7 @@ struct zigzag_codec
 
 	template<typename S = original_t,
 		 typename std::enable_if<std::is_signed<S>::value>::type* = nullptr>
-	original_t
+	static original_t
 	decode_if_signed(unsigned_t v)
 	{
 		return decode(v);
@@ -83,10 +83,22 @@ struct zigzag_codec
 
 	template<typename S = original_t,
 		 typename std::enable_if<std::is_unsigned<S>::value>::type* = nullptr>
-	original_t
+	static original_t
 	decode_if_signed(unsigned_t v)
 	{
 		return v;
+	}
+
+	unsigned_t
+	value_encode(original_t v)
+	{
+		return encode_if_signed(v);
+	}
+
+	original_t
+	value_decode(unsigned_t v)
+	{
+		return decode_if_signed(v);
 	}
 };
 
