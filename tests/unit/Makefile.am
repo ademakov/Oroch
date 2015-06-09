@@ -8,5 +8,6 @@ unit_tests_SOURCES = \
     catch.hpp \
     main.cc \
     bitblk.cc \
+    bitpck.cc \
     varint.cc \
     zigzag.cc
