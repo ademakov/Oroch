@@ -28,6 +28,12 @@
 
 namespace oroch {
 
+//
+// Bit-packing of integers into a sequence of 16-byte blocks.
+//
+// By default the codec applies zigzag encoding if used on signed types.
+// This can be replaced by supplying a different value code explicitly.
+//
 template<typename T>
 class bitpck_codec
 {

@@ -28,6 +28,14 @@
 
 namespace oroch {
 
+//
+// Bit-packing of integers into a sequence of 16-byte blocks with frame of
+// reference. Instead of the original values the codec uses their difference
+// relative to the provided base value.
+//
+// The base value must be lower than or equal to the minimum encoded integer.
+// This ensures that only unsigned integers get to be bit-packed.
+//
 template<typename T>
 class bitfor_codec
 {
