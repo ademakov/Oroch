@@ -13,10 +13,7 @@ TEST_CASE("bitfor codec for unsigned values", "[bitfor]") {
 	std::array<uint8_t, codec::block_codec::block_volume(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
 	std::array<uint32_t, INTS> integers2;
-	codec::parameters params = {
-		.frame_of_reference = FREF,
-		.nbits = BITS
-	};
+	codec::parameters params(FREF, BITS);
 
 	for (int i = 0; i < INTS; i++) {
 		integers[i] = i + FREF;
@@ -40,10 +37,7 @@ TEST_CASE("bitfor codec for signed values", "[bitfor]") {
 	std::array<uint8_t, codec::block_codec::block_volume(INTS, BITS)> bytes;
 	std::array<int32_t, INTS> integers;
 	std::array<int32_t, INTS> integers2;
-	codec::parameters params = {
-		.frame_of_reference = -FREF,
-		.nbits = BITS
-	};
+	codec::parameters params(-FREF, BITS);
 
 	for (int i = 0; i < INTS; i++) {
 		integers[i] = i - FREF;

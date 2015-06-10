@@ -24,9 +24,7 @@
 #ifndef OROCH_BITFOR_H_
 #define OROCH_BITFOR_H_
 
-#include <cassert>
-
-#include <oroch/bitblk.h>
+#include <oroch/bitpck.h>
 
 namespace oroch {
 
@@ -36,79 +34,48 @@ class bitfor_codec
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using block_codec = bitblk_codec<original_t>;
+	using basic_codec = bitpck_codec<original_t>;
+	using block_codec = typename basic_codec::block_codec;
 
 	struct parameters
 	{
-		original_t frame_of_reference;
-		size_t nbits;
-	};
-
-	class value_codec
-	{
-	public:
-		value_codec(original_t v) : frame_of_reference_(v) {}
+		parameters(original_t f, size_t n)
+		: base(f), nbits(n)
+		{
+		}
 
 		unsigned_t
 		value_encode(original_t v)
 		{
-			return unsigned_t(v - frame_of_reference_);
+			return unsigned_t(v - base);
 		}
 
 		original_t
 		value_decode(unsigned_t v)
 		{
-			return original_t(v + frame_of_reference_);
+			return original_t(v + base);
 		}
 
-	private:
-		original_t frame_of_reference_;
+		const original_t base;
+		const size_t nbits;
 	};
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	encode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
+	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
 	       const parameters &params)
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
-		while (src < send) {
-			if (!block_codec::encode(dst, dend, src, send, params.nbits,
-						 value_codec(params.frame_of_reference))) {
-				rc = false;
-				break;
-			}
-		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
+		return basic_codec::encode(dbegin, dend, sbegin, send,
+					   params.nbits, params);
 	}
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	decode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
+	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
 	       const parameters &params)
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
-		while (src < send) {
-			if (!block_codec::decode(dst, dend, src, send, params.nbits,
-						 value_codec(params.frame_of_reference))) {
-				rc = false;
-				break;
-			}
-		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
+		return basic_codec::decode(dbegin, dend, sbegin, send,
+					   params.nbits, params);
 	}
 };
 

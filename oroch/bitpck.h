@@ -33,14 +33,13 @@ class bitpck_codec
 {
 public:
 	using original_t = T;
-	using value_codec = zigzag_codec<original_t>;
 	using block_codec = bitblk_codec<original_t>;
 
-	template<typename DstIter, typename SrcIter>
+	template<typename DstIter, typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
-	encode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       size_t nbits)
+	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
+	       size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
@@ -48,7 +47,7 @@ public:
 
 		while (src < send) {
 			if (!block_codec::encode(dst, dend, src, send,
-						 nbits, value_codec())) {
+						 nbits, value_codec)) {
 				rc = false;
 				break;
 			}
@@ -59,11 +58,11 @@ public:
 		return rc;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename DstIter, typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
-	decode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       size_t nbits)
+	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
+	       size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
@@ -71,7 +70,7 @@ public:
 
 		while (src < send) {
 			if (!block_codec::decode(dst, dend, src, send,
-						 nbits, value_codec())) {
+						 nbits, value_codec)) {
 				rc = false;
 				break;
 			}
