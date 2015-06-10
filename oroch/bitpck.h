@@ -38,17 +38,17 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	encode(size_t nbits,
-	       DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	encode(DstIter &dbegin, DstIter const dend,
+	       SrcIter &sbegin, SrcIter const send,
+	       size_t nbits)
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
 		while (src < send) {
-			if (!block_codec::encode(nbits, dst, dend, src, send,
-						 value_codec())) {
+			if (!block_codec::encode(dst, dend, src, send,
+						 nbits, value_codec())) {
 				rc = false;
 				break;
 			}
@@ -61,17 +61,17 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	decode(size_t nbits,
-	       DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	decode(DstIter &dbegin, DstIter const dend,
+	       SrcIter &sbegin, SrcIter const send,
+	       size_t nbits)
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
 		while (src < send) {
-			if (!block_codec::decode(nbits, dst, dend, src, send,
-						 value_codec())) {
+			if (!block_codec::decode(dst, dend, src, send,
+						 nbits, value_codec())) {
 				rc = false;
 				break;
 			}

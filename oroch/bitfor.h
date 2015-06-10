@@ -38,6 +38,12 @@ public:
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 	using block_codec = bitblk_codec<original_t>;
 
+	struct parameters
+	{
+		original_t frame_of_reference;
+		size_t nbits;
+	};
+
 	class value_codec
 	{
 	public:
@@ -61,17 +67,17 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	encode(size_t nbits, original_t frame_of_ref,
-	       DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	encode(DstIter &dbegin, DstIter const dend,
+	       SrcIter &sbegin, SrcIter const send,
+	       const parameters &params)
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
 		while (src < send) {
-			if (!block_codec::encode(nbits, dst, dend, src, send,
-						 value_codec(frame_of_ref))) {
+			if (!block_codec::encode(dst, dend, src, send, params.nbits,
+						 value_codec(params.frame_of_reference))) {
 				rc = false;
 				break;
 			}
@@ -84,17 +90,17 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	decode(size_t nbits, original_t frame_of_ref,
-	       DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	decode(DstIter &dbegin, DstIter const dend,
+	       SrcIter &sbegin, SrcIter const send,
+	       const parameters &params)
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
 		while (src < send) {
-			if (!block_codec::decode(nbits, dst, dend, src, send,
-						 value_codec(frame_of_ref))) {
+			if (!block_codec::decode(dst, dend, src, send, params.nbits,
+						 value_codec(params.frame_of_reference))) {
 				rc = false;
 				break;
 			}

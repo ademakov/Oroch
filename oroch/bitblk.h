@@ -40,7 +40,6 @@ class bitblk_codec
 {
 public:
 	using original_t = T;
-	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 
 	static constexpr size_t block_size = 16;
 	static constexpr size_t block_nbits = block_size * 8;
@@ -54,24 +53,24 @@ public:
 
 	/* The number of blocks to fit given number of integers. */
 	static constexpr size_t
-	block_number(size_t nbits, size_t nvalues)
+	block_number(size_t nvalues, size_t nbits)
 	{
 		return (nvalues + capacity(nbits) - 1) / capacity(nbits);
 	}
 
 	/* The number of bytes to fit given number of integers. */
 	static constexpr size_t
-	block_volume(size_t nbits, size_t nvalues)
+	block_volume(size_t nvalues, size_t nbits)
 	{
-		return block_size * block_number(nbits, nvalues);
+		return block_size * block_number(nvalues, nbits);
 	}
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
-	encode(const size_t nbits,
-	       DstIter &dbegin, DstIter const dend,
+	encode(DstIter &dbegin, DstIter const dend,
 	       SrcIter &sbegin, SrcIter const send,
+	       const size_t nbits,
 	       ValueCodec value_codec = ValueCodec())
 	{
 		size_t size = std::distance(dbegin, dend);
@@ -136,9 +135,9 @@ public:
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static bool
-	decode(size_t nbits,
-	       DstIter &dbegin, DstIter const dend,
+	decode(DstIter &dbegin, DstIter const dend,
 	       SrcIter &sbegin, SrcIter const send,
+	       const size_t nbits,
 	       ValueCodec value_codec = ValueCodec())
 	{
 		size_t size = std::distance(sbegin, send);
