@@ -10,5 +10,6 @@ unit_tests_SOURCES = \
     bitblk.cc \
     bitfor.cc \
     bitpck.cc \
+    bitpfr.cc \
     varint.cc \
     zigzag.cc
