@@ -27,9 +27,10 @@ AC_PROG_INSTALL
 dnl Checks for libraries.
 
 dnl Checks for header files.
-AC_CHECK_HEADERS([xmmintrin.h])
+#AC_CHECK_HEADERS([xmmintrin.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_TYPES([__int128])
 AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
 
 dnl Checks for library functions.

@@ -26,6 +26,7 @@
 
 #include <iterator>
 
+#include <oroch/config.h>
 #include <oroch/integer_traits.h>
 #include <oroch/zigzag.h>
 
@@ -40,6 +41,9 @@ class bitblk_codec
 {
 public:
 	using original_t = T;
+#if HAVE___INT128
+	using buf_t = unsigned __int128;
+#endif
 
 	static constexpr size_t block_size = 16;
 	static constexpr size_t block_nbits = block_size * 8;
@@ -80,11 +84,31 @@ public:
 		if (size < block_size)
 			return false;
 
-		const size_t mask = (1ul << nbits) - 1;
 		const size_t c = capacity(nbits);
+		const uint64_t mask = (uint64_t(1) << nbits) - 1;
 
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
+
+#if HAVE___INT128
+		buf_t buf = 0;
+
+		size_t n = c;
+		size_t shift = 0;
+		while (n--) {
+			if (src == send)
+				goto done;
+
+			uint64_t value = value_codec.value_encode(*src++);
+			buf |= buf_t(value & mask) << shift;
+			shift += nbits;
+		}
+
+	done:
+		// FIXME: do it in a safer way
+		buf_t *block = reinterpret_cast<buf_t *>(dbegin);
+		*block = buf;
+#else
 		uint64_t buf[2] = { 0, 0 };
 
 		size_t m = c / 2;
@@ -129,6 +153,7 @@ public:
 		uint64_t *block = reinterpret_cast<uint64_t *>(dbegin);
 		block[0] = buf[0];
 		block[1] = buf[1];
+#endif
 
 		dbegin += block_size;
 		sbegin = src;
@@ -147,11 +172,28 @@ public:
 		if (size < block_size)
 			return false;
 
-		const size_t mask = (1ul << nbits) - 1;
 		const size_t c = capacity(nbits);
+		const uint64_t mask = (uint64_t(1) << nbits) - 1;
 
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
+
+#if HAVE___INT128
+		// FIXME: do it in a safer way
+		buf_t *block = reinterpret_cast<buf_t *>(sbegin);
+		buf_t buf = *block;
+
+		size_t n = c;
+		size_t shift = 0;
+		while (n--) {
+			if (dst == dend)
+				goto done;
+
+			uint64_t value = uint64_t(buf >> shift) & mask;
+			*dst++ = value_codec.value_decode(value);
+			shift += nbits;
+		}
+#else
 		uint64_t buf[2];
 
 		// FIXME: do it in a safer way
@@ -196,6 +238,7 @@ public:
 			*dst++ = value_codec.value_decode(value);
 			shift += nbits;
 		}
+#endif
 
 	done:
 		sbegin += block_size;
