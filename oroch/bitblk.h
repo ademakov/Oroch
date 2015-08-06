@@ -32,7 +32,7 @@
 namespace oroch {
 
 //
-// Bit-packing of a number of integers in a 16-byte block. Each integer is
+// Bit-packing of a number of integers into a 16-byte block. Each integer is
 // encoded with a fixed bit width.
 //
 template <typename T>
@@ -44,21 +44,24 @@ public:
 	static constexpr size_t block_size = 16;
 	static constexpr size_t block_nbits = block_size * 8;
 
-	/* The number of integers that fits in a block. */
+	// Get the number of integers with a given width that fits into
+	// a single block.
 	static constexpr size_t
 	capacity(size_t nbits)
 	{
 		return block_nbits / nbits;
 	}
 
-	/* The number of blocks to fit given number of integers. */
+	// Get the number of blocks required to fit a given number of
+	// integers.
 	static constexpr size_t
 	block_number(size_t nvalues, size_t nbits)
 	{
 		return (nvalues + capacity(nbits) - 1) / capacity(nbits);
 	}
 
-	/* The number of bytes to fit given number of integers. */
+	// Get the number of bytes required to fit a given number of
+	// integers.
 	static constexpr size_t
 	block_volume(size_t nvalues, size_t nbits)
 	{
