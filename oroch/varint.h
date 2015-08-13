@@ -54,6 +54,20 @@ public:
 	// The maximum number of bytes needed to encode an integer.
 	static constexpr size_t nbytemax = (integer_traits<original_t>::nbits + 6) / 7;
 
+	static size_t
+	volume(original_t src)
+	{
+		size_t count = 1;
+
+		unsigned_t value = value_codec().value_encode(src);
+		while (value >= 0x80) {
+			value >>= 7;
+			count++;
+		}
+
+		return count;
+	}
+
 	template<typename DstIter>
 	static bool
 	encode(DstIter &dbegin, DstIter const dend, original_t src)
