@@ -10,7 +10,7 @@
 
 #define FREF	1000
 
-TEST_CASE("bitpfr value coder", "[bitpfr]") {
+TEST_CASE("bitpfr value codec", "[bitpfr]") {
 	using codec = oroch::bitpfr_codec<uint32_t>;
 	codec::exceptions excpts;
 	codec::parameters params(FREF, BITS, excpts);
