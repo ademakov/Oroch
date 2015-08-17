@@ -56,7 +56,7 @@ public:
 
 	// The number of bytes needed to encode a given integer.
 	static size_t
-	space(original_t src)
+	value_space(original_t src)
 	{
 		size_t count = 1;
 
