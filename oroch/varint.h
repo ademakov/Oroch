@@ -54,8 +54,9 @@ public:
 	// The maximum number of bytes needed to encode an integer.
 	static constexpr size_t nbytemax = (integer_traits<original_t>::nbits + 6) / 7;
 
+	// The number of bytes needed to encode a given integer.
 	static size_t
-	volume(original_t src)
+	space(original_t src)
 	{
 		size_t count = 1;
 

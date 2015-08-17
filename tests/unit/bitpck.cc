@@ -8,7 +8,7 @@
 
 TEST_CASE("bitpck codec for unsigned values", "[bitpck]") {
 	using codec = oroch::bitpck_codec<uint32_t>;
-	std::array<uint8_t, codec::block_codec::block_volume(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
 	std::array<uint32_t, INTS> integers2;
 
@@ -31,7 +31,7 @@ TEST_CASE("bitpck codec for unsigned values", "[bitpck]") {
 
 TEST_CASE("bitpck codec for signed values", "[bitpck]") {
 	using codec = oroch::bitpck_codec<int32_t>;
-	std::array<uint8_t, codec::block_codec::block_volume(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
 	std::array<int32_t, INTS> integers;
 	std::array<int32_t, INTS> integers2;
 

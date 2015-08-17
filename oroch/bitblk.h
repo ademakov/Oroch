@@ -67,7 +67,7 @@ public:
 	// Get the number of bytes required to fit a given number of
 	// integers.
 	static constexpr size_t
-	block_volume(size_t nvalues, size_t nbits)
+	space(size_t nvalues, size_t nbits)
 	{
 		return block_size * block_number(nvalues, nbits);
 	}
