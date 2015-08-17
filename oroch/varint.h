@@ -59,13 +59,21 @@ public:
 	value_space(original_t src)
 	{
 		size_t count = 1;
-
 		unsigned_t value = value_codec().value_encode(src);
 		while (value >= 0x80) {
 			value >>= 7;
 			count++;
 		}
+		return count;
+	}
 
+	template<typename SrcIter>
+	static size_t
+	space(SrcIter const sbegin, SrcIter const send)
+	{
+		size_t count = 0;
+		for (SrcIter src = sbegin; src != send; ++src)
+			count += value_space(*src);
 		return count;
 	}
 
