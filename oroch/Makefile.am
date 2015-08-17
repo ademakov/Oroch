@@ -5,5 +5,6 @@ include_HEADERS = \
     bitpck.h \
     bitpfr.h \
     integer_traits.h \
+    normal.h \
     varint.h \
     zigzag.h
