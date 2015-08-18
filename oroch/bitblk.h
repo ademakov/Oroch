@@ -105,8 +105,8 @@ public:
 		}
 
 	done:
-		// FIXME: do it in a safer way
-		buf_t *block = reinterpret_cast<buf_t *>(dbegin);
+		auto addr = std::addressof(*dbegin);
+		buf_t *block = reinterpret_cast<buf_t *>(addr);
 		*block = buf;
 #else
 		uint64_t buf[2] = { 0, 0 };
@@ -149,8 +149,8 @@ public:
 		}
 
 	done:
-		// FIXME: do it in a safer way
-		uint64_t *block = reinterpret_cast<uint64_t *>(dbegin);
+		auto addr = std::addressof(*dbegin);
+		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
 		block[0] = buf[0];
 		block[1] = buf[1];
 #endif
@@ -179,8 +179,8 @@ public:
 		SrcIter src = sbegin;
 
 #if HAVE___INT128
-		// FIXME: do it in a safer way
-		buf_t *block = reinterpret_cast<buf_t *>(sbegin);
+		auto addr = std::addressof(*sbegin);
+		buf_t *block = reinterpret_cast<buf_t *>(addr);
 		buf_t buf = *block;
 
 		size_t n = c;
@@ -196,8 +196,8 @@ public:
 #else
 		uint64_t buf[2];
 
-		// FIXME: do it in a safer way
-		uint64_t *block = reinterpret_cast<uint64_t *>(sbegin);
+		auto addr = std::addressof(*sbegin);
+		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
 		buf[0] = block[0];
 		buf[1] = block[1];
 

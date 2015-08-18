@@ -51,7 +51,8 @@ public:
 				rc = false;
 				break;
 			}
-			*reinterpret_cast<original_t *>(dst) = *src++;
+			auto addr = std::addressof(*dst);
+			*reinterpret_cast<original_t *>(addr) = *src++;
 			dst += sizeof(original_t);
 		}
 
@@ -73,7 +74,8 @@ public:
 				rc = false;
 				break;
 			}
-			*dst++ = *reinterpret_cast<original_t *>(src);
+			auto addr = std::addressof(*src);
+			*dst++ = *reinterpret_cast<original_t *>(addr);
 			src += sizeof(original_t);
 		}
 
