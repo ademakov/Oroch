@@ -6,6 +6,7 @@ include_HEADERS = \
     bitpfr.h \
     integer_codec.h \
     integer_traits.h \
+    naught.h \
     normal.h \
     varint.h \
     zigzag.h
