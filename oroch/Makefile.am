@@ -4,6 +4,7 @@ include_HEADERS = \
     bitfor.h \
     bitpck.h \
     bitpfr.h \
+    integer_codec.h \
     integer_traits.h \
     normal.h \
     varint.h \
