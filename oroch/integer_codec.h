@@ -213,21 +213,21 @@ public:
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static void
+	static bool
 	encode(DstIter &dbegin, DstIter const dend,
 	       SrcIter &sbegin, SrcIter const send,
 	       metadata &meta)
 	{
-		encode_basic(dbegin, dend, sbegin, send, meta.value_desc);
+		return encode_basic(dbegin, dend, sbegin, send, meta.value_desc);
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static void
+	static bool
 	decode(DstIter &dbegin, DstIter const dend,
 	       SrcIter &sbegin, SrcIter const send,
 	       metadata &meta)
 	{
-		decode_basic(dbegin, dend, sbegin, send, meta.value_desc);
+		return decode_basic(dbegin, dend, sbegin, send, meta.value_desc);
 	}
 
 private:
