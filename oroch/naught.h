@@ -34,7 +34,7 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send)
+	encode(DstIter &, DstIter, SrcIter &sbegin, SrcIter send)
 	{
 		sbegin = send;
 		return true;
@@ -42,7 +42,7 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
+	decode(DstIter &dbegin, DstIter dend, SrcIter &, SrcIter,
 	       original_t value = 0)
 	{
 		DstIter dst = dbegin;
