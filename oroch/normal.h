@@ -24,6 +24,8 @@
 #ifndef OROCH_NORMAL_H_
 #define OROCH_NORMAL_H_
 
+#include <memory>
+
 namespace oroch {
 
 template<typename T>
