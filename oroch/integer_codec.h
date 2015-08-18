@@ -31,6 +31,7 @@
 #include <oroch/integer_traits.h>
 #include <oroch/bitpck.h>
 #include <oroch/bitfor.h>
+#include <oroch/naught.h>
 #include <oroch/normal.h>
 #include <oroch/varint.h>
 #include <oroch/zigzag.h>
@@ -38,8 +39,9 @@
 namespace oroch {
 
 enum class encoding_t {
-        normal = 0,
-        varint = 1,
+        naught = 0,
+        normal = 1,
+        varint = 2,
         bitpck = 3,
         bitfor = 4,
 };
@@ -129,6 +131,7 @@ public:
 
 	using bitpck = bitpck_codec<original_t>;
 	using bitfor = bitfor_codec<original_t>;
+	using naught = normal_codec<original_t>;
 	using normal = normal_codec<original_t>;
 	using varint = varint_codec<original_t>;
 	using zigzag = zigzag_codec<original_t>;
@@ -153,6 +156,10 @@ public:
 		*dst++ = encoding;
 
 		switch (encoding) {
+		case encoding_t::naught:
+			if (!varint::encode(dst, dend, meta.value_desc.base))
+				return false;
+			// no break at the end of case
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
@@ -183,6 +190,10 @@ public:
 		meta.value_desc.encoding = encoding;
 
 		switch (encoding) {
+		case encoding_t::naught:
+			if (!varint::decode(meta.value_desc.base, src, send))
+				return false;
+			// no break at the end of case
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
@@ -242,6 +253,18 @@ private:
 
 		desc.encoding = encoding_t::varint;
 		desc.space = space;
+
+		//
+		// Check for corner cases.
+		//
+
+		if (stat.nvalues == 0)
+			return;
+		if (stat.minvalue == stat.maxvalue) {
+			desc.encoding = encoding_t::naught;
+			desc.base = stat.minvalue;
+			return;
+		}
 
 		//
 		// Compute the memory footprint of normal
@@ -314,6 +337,8 @@ private:
 		     value_desc &desc)
 	{
 		switch(desc.encoding) {
+		case encoding_t::naught:
+			return naught::encode(dbegin, dend, sbegin, send);
 		case encoding_t::normal:
 			return normal::encode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
@@ -333,6 +358,8 @@ private:
 		     value_desc &desc)
 	{
 		switch(desc.encoding) {
+		case encoding_t::naught:
+			return naught::decode(dbegin, dend, sbegin, send, desc.base);
 		case encoding_t::normal:
 			return normal::decode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
