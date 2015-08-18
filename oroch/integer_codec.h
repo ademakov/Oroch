@@ -131,7 +131,7 @@ public:
 
 	using bitpck = bitpck_codec<original_t>;
 	using bitfor = bitfor_codec<original_t>;
-	using naught = normal_codec<original_t>;
+	using naught = naught_codec<original_t>;
 	using normal = normal_codec<original_t>;
 	using varint = varint_codec<original_t>;
 	using zigzag = zigzag_codec<original_t>;
@@ -262,6 +262,7 @@ private:
 			return;
 		if (stat.minvalue == stat.maxvalue) {
 			desc.encoding = encoding_t::naught;
+			desc.space = varint::value_space(stat.minvalue);
 			desc.base = stat.minvalue;
 			return;
 		}
