@@ -13,4 +13,5 @@ unit_tests_SOURCES = \
     bitpfr.cc \
     normal.cc \
     varint.cc \
-    zigzag.cc
+    zigzag.cc \
+    integer_codec.cc
