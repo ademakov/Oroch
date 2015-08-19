@@ -293,7 +293,7 @@ private:
 			unsigned_t maxvalue = zigzag::encode(stat.maxvalue);
 			umaxvalue = std::max(minvalue, maxvalue);
 		} else {
-			unsigned_t umaxvalue = stat.maxvalue;
+			umaxvalue = stat.maxvalue;
 		}
 
 		// Find the number of bits per value.
