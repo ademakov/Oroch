@@ -58,6 +58,7 @@ struct encoding_descriptor
 
 	// The required amount of memory in bytes.
 	size_t space;
+	size_t metaspace;
 
 	// The base value for frame-of-reference encodings.
 	original_t base;
@@ -70,6 +71,7 @@ struct encoding_descriptor
 	{
 		encoding = encoding_t::normal;
 		space = 0;
+		metaspace = 0;
 		base = 0;
 		nbits = 0;
 	}
@@ -237,7 +239,7 @@ private:
 	select_basic(value_desc &desc, SrcIter const sbegin, SrcIter const send)
 	{
 		statistics stat;
-		size_t space, nbits;
+		size_t space, metaspace, nbits;
 
 		//
 		// Collect value statistics and compute the memory
@@ -255,19 +257,6 @@ private:
 		desc.space = space;
 
 		//
-		// Check for corner cases.
-		//
-
-		if (stat.nvalues == 0)
-			return;
-		if (stat.minvalue == stat.maxvalue) {
-			desc.encoding = encoding_t::naught;
-			desc.space = varint::value_space(stat.minvalue);
-			desc.base = stat.minvalue;
-			return;
-		}
-
-		//
 		// Compute the memory footprint of normal
 		// representation.
 		//
@@ -279,12 +268,23 @@ private:
 		}
 
 		//
+		// Check for corner cases.
+		//
+
+		if (stat.nvalues == 0)
+			return;
+		if (stat.minvalue == stat.maxvalue) {
+			desc.encoding = encoding_t::naught;
+			desc.space = 0;
+			desc.metaspace = varint::value_space(stat.minvalue);
+			desc.base = stat.minvalue;
+			return;
+		}
+
+		//
 		// Compute the memory footprint of bit-packed
 		// representation.
 		//
-
-		// The memory required to encode the nbits value.
-		space = 1;
 
 		// Find the maximum value to be encoded.
 		unsigned_t umaxvalue;
@@ -300,10 +300,13 @@ private:
 		nbits = integer_traits<unsigned_t>::usedcount(umaxvalue);
 
 		// Account for the memory required to encode all values.
-		space += bitpck::block_codec::space(stat.nvalues, nbits);
-		if (space <= desc.space) {
+		space = bitpck::block_codec::space(stat.nvalues, nbits);
+		// The memory required to encode the nbits value.
+		metaspace = 1;
+		if ((space + metaspace) < (desc.space + desc.metaspace)) {
 			desc.encoding = encoding_t::bitpck;
 			desc.space = space;
+			desc.metaspace = metaspace;
 			desc.nbits = nbits;
 		}
 
@@ -312,9 +315,6 @@ private:
 		// with frame-of-reference representation.
 		//
 
-		// The memory required to store the nbits and base values.
-		space = 1 + varint::value_space(stat.minvalue);
-
 		// Find the range of values to be encoded.
 		unsigned_t range = stat.maxvalue - stat.minvalue;
 
@@ -322,10 +322,13 @@ private:
 		nbits = integer_traits<unsigned_t>::usedcount(range);
 
 		// Account for the memory required to encode all values.
-		space += bitpck::block_codec::space(stat.nvalues, nbits);
-		if (space < desc.space) {
+		space = bitpck::block_codec::space(stat.nvalues, nbits);
+		// The memory required to store the nbits and base values.
+		metaspace = 1 + varint::value_space(stat.minvalue);
+		if ((space + metaspace) < (desc.space + desc.metaspace)) {
 			desc.encoding = encoding_t::bitpck;
 			desc.space = space;
+			desc.metaspace = metaspace;
 			desc.base = stat.minvalue;
 			desc.nbits = nbits;
 		}
