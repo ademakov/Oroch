@@ -86,7 +86,8 @@ public:
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
-		uint64_t buf[2] = { 0, 0 };
+		uint64_t u = 0;
+		uint64_t v = 0;
 
 		size_t m = c / 2;
 		size_t n = c - m;
@@ -96,7 +97,7 @@ public:
 				goto done;
 
 			uint64_t value = value_codec.value_encode(*src++);
-			buf[0] |= (value & mask) << shift;
+			u |= (value & mask) << shift;
 			shift += nbits;
 		}
 		if (shift == 64) {
@@ -111,8 +112,8 @@ public:
 			size_t mask2 = (1ul << nbits2) - 1;
 
 			uint64_t value = value_codec.value_encode(*src++);
-			buf[0] |= (value & mask1) << shift;
-			buf[1] |= (value >> nbits1) & mask2;
+			u |= (value & mask1) << shift;
+			v |= (value >> nbits1) & mask2;
 			shift = nbits2;
 			n--;
 		}
@@ -121,15 +122,15 @@ public:
 				goto done;
 
 			uint64_t value = value_codec.value_encode(*src++);
-			buf[1] |= (value & mask) << shift;
+			v |= (value & mask) << shift;
 			shift += nbits;
 		}
 
 	done:
 		auto addr = std::addressof(*dst);
 		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
-		block[0] = buf[0];
-		block[1] = buf[1];
+		block[0] = u;
+		block[1] = v;
 
 		dbegin += block_size;
 		sbegin = src;
@@ -153,49 +154,33 @@ public:
 
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
-		uint64_t buf[2];
 
 		auto addr = std::addressof(*src);
 		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
-		buf[0] = block[0];
-		buf[1] = block[1];
+		uint64_t u = block[0];
+		uint64_t v = block[1];
 
 		size_t m = c / 2;
 		size_t n = c - m;
-		size_t shift = 0;
+		size_t nbits1 = 64 - m * nbits;
 		while (m--) {
 			if (dst == dend)
 				goto done;
-
-			uint64_t value = (buf[0] >> shift) & mask;
-			*dst++ = value_codec.value_decode(value);
-			shift += nbits;
+			*dst++ = value_codec.value_decode(u & mask);
+			u >>= nbits;
 		}
-		if (shift == 64) {
-			shift = 0;
-		} else {
+		if (nbits1) {
 			if (dst == dend)
 				goto done;
-
-			size_t nbits1 = 64 - shift;
-			size_t nbits2 = nbits - nbits1;
-			size_t mask1 = (1ul << nbits1) - 1;
-			size_t mask2 = (1ul << nbits2) - 1;
-
-			uint64_t value = 0;
-			value |= (buf[0] >> shift) & mask1;
-			value |= (buf[1] & mask2) << nbits1;
-			*dst++ = value_codec.value_decode(value);
-			shift = nbits2;
+			*dst++ = value_codec.value_decode((u | (v << nbits1)) & mask);
+			v >>= nbits - nbits1;
 			n--;
 		}
 		while (n--) {
 			if (dst == dend)
 				goto done;
-
-			uint64_t value = (buf[1] >> shift) & mask;
-			*dst++ = value_codec.value_decode(value);
-			shift += nbits;
+			*dst++ = value_codec.value_decode(v & mask);
+			v >>= nbits;
 		}
 
 	done:
