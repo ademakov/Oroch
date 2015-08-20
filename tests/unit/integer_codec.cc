@@ -25,7 +25,7 @@ TEST_CASE("integer codec", "[codec]") {
 		     ", nbits: " << meta.value_desc.nbits <<
 		     ", size: " << n);
 
-		std::vector<uint8_t> bytes(meta.value_desc.space);
+		std::vector<uint8_t> bytes(meta.space());
 		auto b_it = bytes.begin();
 		REQUIRE(codec::encode(b_it, bytes.end(), i_it, i_end, meta));
 
@@ -37,3 +37,24 @@ TEST_CASE("integer codec", "[codec]") {
 			REQUIRE(integers2[i] == integers[i]);
 	}
 }
+
+TEST_CASE("integer codec metadata", "[codec]") {
+	using codec = oroch::integer_codec<uint32_t>;
+	std::array<uint32_t, 4> integers {{ 100, 101, 102, 103 }};
+	codec::metadata meta;
+	codec::metadata meta2;
+
+	auto i_it = integers.begin();
+	codec::select(meta, i_it, integers.end());
+	std::vector<uint8_t> bytes(meta.metaspace());
+	INFO("encoding: " << (int) meta.value_desc.encoding <<
+	     ", mataspace: " << meta.value_desc.metaspace);
+
+	auto b_it = bytes.begin();
+	REQUIRE(codec::encode_meta(b_it, bytes.end(), meta));
+	b_it = bytes.begin();
+	REQUIRE(codec::decode_meta(b_it, bytes.end(), meta2));
+	REQUIRE(meta2.value_desc.encoding == meta.value_desc.encoding);
+
+}
+
