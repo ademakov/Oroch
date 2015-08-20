@@ -41,10 +41,6 @@ class bitblk_codec
 {
 public:
 	using original_t = T;
-#if HAVE___INT128
-	using buf_t = unsigned __int128;
-#endif
-
 	static constexpr size_t block_size = 16;
 	static constexpr size_t block_nbits = block_size * 8;
 
@@ -90,25 +86,6 @@ public:
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
-#if HAVE___INT128
-		buf_t buf = 0;
-
-		size_t n = c;
-		size_t shift = 0;
-		while (n--) {
-			if (src == send)
-				goto done;
-
-			uint64_t value = value_codec.value_encode(*src++);
-			buf |= buf_t(value & mask) << shift;
-			shift += nbits;
-		}
-
-	done:
-		auto addr = std::addressof(*dst);
-		buf_t *block = reinterpret_cast<buf_t *>(addr);
-		*block = buf;
-#else
 		uint64_t buf[2] = { 0, 0 };
 
 		size_t m = c / 2;
@@ -153,7 +130,6 @@ public:
 		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
 		block[0] = buf[0];
 		block[1] = buf[1];
-#endif
 
 		dbegin += block_size;
 		sbegin = src;
@@ -177,23 +153,6 @@ public:
 
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
-
-#if HAVE___INT128
-		auto addr = std::addressof(*src);
-		buf_t *block = reinterpret_cast<buf_t *>(addr);
-		buf_t buf = *block;
-
-		size_t n = c;
-		size_t shift = 0;
-		while (n--) {
-			if (dst == dend)
-				goto done;
-
-			uint64_t value = uint64_t(buf >> shift) & mask;
-			*dst++ = value_codec.value_decode(value);
-			shift += nbits;
-		}
-#else
 		uint64_t buf[2];
 
 		auto addr = std::addressof(*src);
@@ -238,7 +197,6 @@ public:
 			*dst++ = value_codec.value_decode(value);
 			shift += nbits;
 		}
-#endif
 
 	done:
 		sbegin += block_size;
