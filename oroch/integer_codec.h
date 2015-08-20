@@ -341,7 +341,7 @@ private:
 		// The memory required to store the nbits and base values.
 		metaspace = 1 + varint::value_space(stat.minvalue);
 		if ((space + metaspace) < (desc.space + desc.metaspace)) {
-			desc.encoding = encoding_t::bitpck;
+			desc.encoding = encoding_t::bitfor;
 			desc.space = space;
 			desc.metaspace = metaspace;
 			desc.base = stat.minvalue;
