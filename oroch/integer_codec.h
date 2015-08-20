@@ -368,6 +368,7 @@ private:
 			typename bitfor::parameters params(desc.base, desc.nbits);
 			return bitfor::encode(dbegin, dend, sbegin, send, params);
 		}
+		return false;
 	}
 
 	template<typename DstIter, typename SrcIter>
@@ -389,6 +390,7 @@ private:
 			typename bitfor::parameters params(desc.base, desc.nbits);
 			return bitfor::decode(dbegin, dend, sbegin, send, params);
 		}
+		return false;
 	}
 };
 
