@@ -149,9 +149,6 @@ public:
 		if (size < block_size)
 			return false;
 
-		const size_t c = capacity(nbits);
-		const uint64_t mask = (uint64_t(1) << nbits) - 1;
-
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
@@ -160,30 +157,32 @@ public:
 		uint64_t u = block[0];
 		uint64_t v = block[1];
 
+		const uint64_t mask = (uint64_t(1) << nbits) - 1;
+
+		size_t c = capacity(nbits);
 		size_t m = c / 2;
-		size_t n = c - m;
 		size_t nbits1 = 64 - m * nbits;
+		size_t k = std::distance(dst, dend);
+		if (c > k) {
+			c = k;
+			if (m > k)
+				m = k;
+		}
+		size_t n = c - m;
 		while (m--) {
-			if (dst == dend)
-				goto done;
 			*dst++ = value_codec.value_decode(u & mask);
 			u >>= nbits;
 		}
-		if (nbits1) {
-			if (dst == dend)
-				goto done;
+		if (n && nbits1) {
 			*dst++ = value_codec.value_decode((u | (v << nbits1)) & mask);
 			v >>= nbits - nbits1;
 			n--;
 		}
 		while (n--) {
-			if (dst == dend)
-				goto done;
 			*dst++ = value_codec.value_decode(v & mask);
 			v >>= nbits;
 		}
 
-	done:
 		sbegin += block_size;
 		dbegin = dst;
 		return true;
