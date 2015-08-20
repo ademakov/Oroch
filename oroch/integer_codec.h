@@ -38,7 +38,7 @@
 
 namespace oroch {
 
-enum class encoding_t {
+enum class encoding_t : uint8_t {
         naught = 0,
         normal = 1,
         varint = 2,
@@ -56,8 +56,10 @@ struct encoding_descriptor
 	// The encoding ID.
 	encoding_t encoding;
 
-	// The required amount of memory in bytes.
+	// The required amount of memory in bytes for data.
 	size_t space;
+	// The required amount of memory in bytes for metadata
+	// excluding single byte for encoding.
 	size_t metaspace;
 
 	// The base value for frame-of-reference encodings.
@@ -111,7 +113,20 @@ struct encoding_metadata
 	std::vector<original_t> outlier_value_vec;
 	std::vector<size_t> outlier_index_vec;
 
-	void clear()
+	size_t
+	space()
+	{
+		return value_desc.space;
+	}
+
+	size_t
+	metaspace()
+	{
+		return 1 + value_desc.metaspace;
+	}
+
+	void
+	clear()
 	{
 		value_desc.clear();
 		outlier_value_desc.clear();
@@ -155,7 +170,7 @@ public:
 		encoding_t encoding = meta.value_desc.encoding;
 		if (dst == dend)
 			return false;
-		*dst++ = encoding;
+		*dst++ = static_cast<uint8_t>(encoding);
 
 		switch (encoding) {
 		case encoding_t::naught:
@@ -182,13 +197,13 @@ public:
 
 	template<typename SrcIter>
 	static bool
-	deecode_meta(SrcIter &sbegin, SrcIter const send, metadata &meta)
+	decode_meta(SrcIter &sbegin, SrcIter const send, metadata &meta)
 	{
 		SrcIter src = sbegin;
 
 		if (src == send)
 			return false;
-		encoding_t encoding = *src++;
+		encoding_t encoding = static_cast<encoding_t>(*src++);
 		meta.value_desc.encoding = encoding;
 
 		switch (encoding) {
@@ -206,7 +221,7 @@ public:
 		case encoding_t::bitpck:
 			if (src == send)
 				return false;
-			meta.value_desc.nbits = src++;
+			meta.value_desc.nbits = *src++;
 			break;
 		}
 
