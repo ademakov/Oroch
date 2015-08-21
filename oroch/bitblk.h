@@ -24,6 +24,7 @@
 #ifndef OROCH_BITBLK_H_
 #define OROCH_BITBLK_H_
 
+#include <cassert>
 #include <iterator>
 
 #include <oroch/config.h>
@@ -81,7 +82,7 @@ public:
 			return false;
 
 		const size_t c = capacity(nbits);
-		const uint64_t mask = (uint64_t(1) << nbits) - 1;
+		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
 
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
@@ -157,11 +158,11 @@ public:
 		uint64_t u = block[0];
 		uint64_t v = block[1];
 
-		const uint64_t mask = (uint64_t(1) << nbits) - 1;
+		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
 
 		size_t c = capacity(nbits);
 		size_t m = c / 2;
-		size_t nbits1 = 64 - m * nbits;
+		size_t mbits = m * nbits;
 		size_t k = std::distance(dst, dend);
 		if (c > k) {
 			c = k;
@@ -173,9 +174,11 @@ public:
 			*dst++ = value_codec.value_decode(u & mask);
 			u >>= nbits;
 		}
-		if (n && nbits1) {
-			*dst++ = value_codec.value_decode((u | (v << nbits1)) & mask);
-			v >>= nbits - nbits1;
+		if (n && mbits != 64) {
+			size_t r = 64 - mbits;
+			uint64_t x = u | (v << r);
+			*dst++ = value_codec.value_decode(x & mask);
+			v >>= nbits - r;
 			n--;
 		}
 		while (n--) {
@@ -186,6 +189,32 @@ public:
 		sbegin += block_size;
 		dbegin = dst;
 		return true;
+	}
+
+	template<typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
+	static original_t
+	fetch(SrcIter src, const size_t index, const size_t nbits,
+	      ValueCodec value_codec = ValueCodec())
+	{
+		auto addr = std::addressof(*src);
+		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
+
+		size_t m = capacity(nbits) / 2;
+
+		uint64_t x;
+		if (index < m) {
+			x = block[0] >> (index * nbits);
+		} else {
+			size_t mbits = m * nbits;
+			if (mbits != 64 && index == m)
+				x = (block[0] >> mbits) | (block[1] << (64 - mbits));
+			else
+				x = block[1] >> (index * nbits - 64);
+		}
+
+		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
+		return value_codec.value_decode(x & mask);
 	}
 };
 
