@@ -85,6 +85,15 @@ public:
 		return basic_codec::decode(dbegin, dend, sbegin, send,
 					   params.nbits, params);
 	}
+
+	template<typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
+	static original_t
+	fetch(SrcIter src, const size_t index,
+	      const parameters &params)
+	{
+		return basic_codec::fetch(src, index, params.nbits, params);
+	}
 };
 
 } // namespace oroch

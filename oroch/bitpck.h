@@ -86,6 +86,18 @@ public:
 		sbegin = src;
 		return rc;
 	}
+
+	template<typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
+	static original_t
+	fetch(SrcIter src, const size_t index, const size_t nbits,
+	      ValueCodec value_codec = ValueCodec())
+	{
+		size_t c = block_codec::capacity(nbits);
+		src += (index / c) * block_codec::block_size;
+		return block_codec::fetch(src, index % c, nbits,
+					  value_codec);
+	}
 };
 
 } // namespace oroch
