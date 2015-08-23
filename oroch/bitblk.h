@@ -191,6 +191,47 @@ public:
 		return true;
 	}
 
+	template<typename DstIter, typename SrcIter,
+		 typename ValueCodec = zigzag_codec<original_t>>
+	static void
+	decode(DstIter &dbegin, SrcIter &sbegin,
+	       const size_t nbits,
+	       ValueCodec value_codec = ValueCodec())
+	{
+		DstIter dst = dbegin;
+		SrcIter src = sbegin;
+
+		auto addr = std::addressof(*src);
+		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
+		uint64_t u = block[0];
+		uint64_t v = block[1];
+
+		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
+
+		size_t c = capacity(nbits);
+		size_t m = c / 2;
+		size_t n = c - m;
+		size_t mbits = m * nbits;
+		while (m--) {
+			*dst++ = value_codec.value_decode(u & mask);
+			u >>= nbits;
+		}
+		if (mbits != 64) {
+			size_t r = 64 - mbits;
+			uint64_t x = u | (v << r);
+			*dst++ = value_codec.value_decode(x & mask);
+			v >>= nbits - r;
+			n--;
+		}
+		while (n--) {
+			*dst++ = value_codec.value_decode(v & mask);
+			v >>= nbits;
+		}
+
+		sbegin += block_size;
+		dbegin = dst;
+	}
+
 	template<typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static original_t

@@ -74,12 +74,18 @@ public:
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
-		while (src < send) {
+		size_t ndst = std::distance(dst, dend);
+		size_t nsrc = std::distance(src, send);
+		size_t ndst_full = ndst / block_codec::capacity(nbits);
+		size_t nsrc_full = nsrc / block_codec::block_size;
+		size_t n = std::min(ndst_full, nsrc_full);
+		while (n--)
+			block_codec::decode(dst, src, nbits, value_codec);
+
+		if (dst != dend && src != send) {
 			if (!block_codec::decode(dst, dend, src, send,
-						 nbits, value_codec)) {
+						 nbits, value_codec))
 				rc = false;
-				break;
-			}
 		}
 
 		dbegin = dst;
