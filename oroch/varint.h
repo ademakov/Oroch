@@ -105,16 +105,20 @@ public:
 	{
 		SrcIter src = sbegin;
 
-		if (src >= send)
+		if (src >= send) {
+			dst = 0;
 			return false;
+		}
 		unsigned_t value = uint8_t(*src++);
 
 		if (int8_t(value) < 0) {
 			value &= 0x7f;
 			int shift = 7;
 			for (;;) {
-				if (src >= send)
+				if (src >= send) {
+					dst = 0;
 					return false;
+				}
 				uint8_t byte = *src++;
 
 				if (int8_t(byte) > 0) {
