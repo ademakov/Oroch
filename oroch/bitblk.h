@@ -154,7 +154,7 @@ public:
 		SrcIter src = sbegin;
 
 		auto addr = std::addressof(*src);
-		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
+		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
 		uint64_t u = block[0];
 		uint64_t v = block[1];
 
@@ -202,7 +202,7 @@ public:
 		SrcIter src = sbegin;
 
 		auto addr = std::addressof(*src);
-		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
+		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
 		uint64_t u = block[0];
 		uint64_t v = block[1];
 
@@ -239,7 +239,7 @@ public:
 	      ValueCodec value_codec = ValueCodec())
 	{
 		auto addr = std::addressof(*src);
-		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
+		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
 
 		size_t m = capacity(nbits) / 2;
 

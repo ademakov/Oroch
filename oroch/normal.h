@@ -77,7 +77,7 @@ public:
 				break;
 			}
 			auto addr = std::addressof(*src);
-			*dst++ = *reinterpret_cast<original_t *>(addr);
+			*dst++ = *reinterpret_cast<const original_t *>(addr);
 			src += sizeof(original_t);
 		}
 
