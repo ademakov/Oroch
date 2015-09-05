@@ -68,6 +68,11 @@ struct encoding_descriptor
 	// The number of bits per integer for bit-packing encodings.
 	size_t nbits;
 
+	encoding_descriptor()
+	{
+		clear();
+	}
+
 	void
 	clear()
 	{
@@ -157,7 +162,6 @@ public:
 	static void
 	select(metadata &meta, SrcIter const sbegin, SrcIter const send)
 	{
-		meta.clear();
 		select_basic(meta.value_desc, sbegin, send);
 	}
 
