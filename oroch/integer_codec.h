@@ -38,7 +38,7 @@
 
 namespace oroch {
 
-enum class encoding_t : uint8_t {
+enum encoding_t : uint8_t {
         naught = 0,
         normal = 1,
         varint = 2,
@@ -57,7 +57,7 @@ struct encoding_descriptor
 	encoding_t encoding;
 
 	// The required amount of memory in bytes for data.
-	size_t space;
+	size_t dataspace;
 	// The required amount of memory in bytes for metadata
 	// excluding single byte for encoding.
 	size_t metaspace;
@@ -77,7 +77,7 @@ struct encoding_descriptor
 	clear()
 	{
 		encoding = encoding_t::normal;
-		space = 0;
+		dataspace = 0;
 		metaspace = 0;
 		base = 0;
 		nbits = 0;
@@ -85,23 +85,49 @@ struct encoding_descriptor
 };
 
 template <typename T>
-struct encoding_statistics
+class encoding_statistics
 {
+public:
 	using original_t = T;
 
-	size_t nvalues = 0;
-	original_t minvalue = std::numeric_limits<original_t>::max();
-	original_t maxvalue = std::numeric_limits<original_t>::min();
+	using varint = varint_codec<original_t>;
+
+	size_t nvalues() const { return nvalues_; }
+	size_t varintspace() const { return varintspace_; }
+	size_t normalspace() const { return nvalues() * sizeof(original_t); }
+
+	original_t minvalue() const { return minvalue_; }
+	original_t maxvalue() const { return maxvalue_; }
 
 	void
 	add(original_t value)
 	{
-		if (minvalue > value)
-			minvalue = value;
-		if (maxvalue < value)
-			maxvalue = value;
-		nvalues++;
+		nvalues_++;
+		if (minvalue_ > value)
+			minvalue_ = value;
+		if (maxvalue_ < value)
+			maxvalue_ = value;
+		varintspace_ += varint::value_space(value);
 	}
+
+	template<typename Iter>
+	void
+	collect(Iter src, Iter const send)
+	{
+		for (; src != send; ++src)
+			add(*src);
+	}
+
+private:
+	// The total number of values.
+	size_t nvalues_ = 0;
+
+	// The memory footprint of varint encoding.
+	size_t varintspace_ = 0;
+
+	// The minimum and maximum values in the sequence.
+	original_t minvalue_ = std::numeric_limits<original_t>::max();
+	original_t maxvalue_ = std::numeric_limits<original_t>::min();
 };
 
 } // namespace oroch::detail
@@ -110,8 +136,12 @@ template <typename T>
 struct encoding_metadata
 {
 	using original_t = T;
+	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
+
+	using varint = varint_codec<original_t>;
 
 	detail::encoding_descriptor<original_t> value_desc;
+
 	detail::encoding_descriptor<original_t> outlier_value_desc;
 	detail::encoding_descriptor<size_t> outlier_index_desc;
 
@@ -119,13 +149,13 @@ struct encoding_metadata
 	std::vector<size_t> outlier_index_vec;
 
 	size_t
-	space()
+	dataspace() const
 	{
-		return value_desc.space;
+		return value_desc.dataspace;
 	}
 
 	size_t
-	metaspace()
+	metaspace() const
 	{
 		return 1 + value_desc.metaspace;
 	}
@@ -139,6 +169,74 @@ struct encoding_metadata
 		outlier_value_vec.clear();
 		outlier_index_vec.clear();
 	}
+
+	template<typename DstIter>
+	bool
+	encode(DstIter &dbegin, DstIter const dend) const
+	{
+		DstIter dst = dbegin;
+		if (dst == dend)
+			return false;
+
+		encoding_t encoding = value_desc.encoding;
+		*dst++ = encoding;
+
+		switch (encoding) {
+		case encoding_t::naught:
+			if (!varint::encode(dst, dend, value_desc.base))
+				return false;
+			// no break at the end of case
+		case encoding_t::normal:
+		case encoding_t::varint:
+			break;
+		case encoding_t::bitfor:
+			if (!varint::encode(dst, dend, value_desc.base))
+				return false;
+			// no break at the end of case
+		case encoding_t::bitpck:
+			if (dst == dend)
+				return false;
+			*dst++ = value_desc.nbits;
+			break;
+		}
+
+		dbegin = dst;
+		return true;
+	}
+
+	template<typename SrcIter>
+	bool
+	decode(SrcIter &sbegin, SrcIter const send)
+	{
+		SrcIter src = sbegin;
+		if (src == send)
+			return false;
+
+		encoding_t encoding = static_cast<encoding_t>(*src++);
+		value_desc.encoding = encoding;
+
+		switch (encoding) {
+		case encoding_t::naught:
+			if (!varint::decode(value_desc.base, src, send))
+				return false;
+			// no break at the end of case
+		case encoding_t::normal:
+		case encoding_t::varint:
+			break;
+		case encoding_t::bitfor:
+			if (!varint::decode(value_desc.base, src, send))
+				return false;
+			// no break at the end of case
+		case encoding_t::bitpck:
+			if (src == send)
+				return false;
+			value_desc.nbits = *src++;
+			break;
+		}
+
+		sbegin = src;
+		return true;
+	}
 };
 
 template <typename T>
@@ -147,8 +245,6 @@ class integer_codec
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using statistics = detail::encoding_statistics<original_t>;
-	using value_desc = detail::encoding_descriptor<original_t>;
 	using metadata = encoding_metadata<original_t>;
 
 	using bitpck = bitpck_codec<original_t>;
@@ -162,75 +258,54 @@ public:
 	static void
 	select(metadata &meta, SrcIter const sbegin, SrcIter const send)
 	{
-		select_basic(meta.value_desc, sbegin, send);
+		//
+		// Collect value statistics.
+		//
+
+		detail::encoding_statistics<original_t> vstat;
+		vstat.collect(sbegin, send);
+
+		//
+		// Handle trivial corner cases.
+		//
+
+		// An empty sequence.
+		if (vstat.nvalues() == 0) {
+			meta.value_desc.encoding = encoding_t::normal;
+			meta.value_desc.dataspace = 0;
+			meta.value_desc.metaspace = 0;
+			return;
+		}
+
+		// A constant or singular sequence.
+		if (vstat.minvalue() == vstat.maxvalue()) {
+			original_t value = vstat.minvalue();
+			meta.value_desc.encoding = encoding_t::naught;
+			meta.value_desc.dataspace = 0;
+			meta.value_desc.metaspace = varint::value_space(value);
+			meta.value_desc.base = value;
+			return;
+		}
+
+		//
+		// Analyze sequence and select the best encoding.
+		//
+
+		select_basic(meta.value_desc, vstat);
 	}
 
 	template<typename DstIter>
 	static bool
 	encode_meta(DstIter &dbegin, DstIter const dend, metadata &meta)
 	{
-		DstIter dst = dbegin;
-
-		encoding_t encoding = meta.value_desc.encoding;
-		if (dst == dend)
-			return false;
-		*dst++ = static_cast<uint8_t>(encoding);
-
-		switch (encoding) {
-		case encoding_t::naught:
-			if (!varint::encode(dst, dend, meta.value_desc.base))
-				return false;
-			// no break at the end of case
-		case encoding_t::normal:
-		case encoding_t::varint:
-			break;
-		case encoding_t::bitfor:
-			if (!varint::encode(dst, dend, meta.value_desc.base))
-				return false;
-			// no break at the end of case
-		case encoding_t::bitpck:
-			if (dst == dend)
-				return false;
-			*dst++ = meta.value_desc.nbits;
-			break;
-		}
-
-		dbegin = dst;
-		return true;
+		return meta.encode(dbegin, dend);
 	}
 
 	template<typename SrcIter>
 	static bool
 	decode_meta(SrcIter &sbegin, SrcIter const send, metadata &meta)
 	{
-		SrcIter src = sbegin;
-
-		if (src == send)
-			return false;
-		encoding_t encoding = static_cast<encoding_t>(*src++);
-		meta.value_desc.encoding = encoding;
-
-		switch (encoding) {
-		case encoding_t::naught:
-			if (!varint::decode(meta.value_desc.base, src, send))
-				return false;
-			// no break at the end of case
-		case encoding_t::normal:
-		case encoding_t::varint:
-			break;
-		case encoding_t::bitfor:
-			if (!varint::decode(meta.value_desc.base, src, send))
-				return false;
-			// no break at the end of case
-		case encoding_t::bitpck:
-			if (src == send)
-				return false;
-			meta.value_desc.nbits = *src++;
-			break;
-		}
-
-		sbegin = src;
-		return true;
+		return meta.decode(sbegin, send);
 	}
 
 	template<typename DstIter, typename SrcIter>
@@ -253,51 +328,30 @@ public:
 
 private:
 
-	template<typename SrcIter>
+	template<typename integer_t>
 	static void
-	select_basic(value_desc &desc, SrcIter const sbegin, SrcIter const send)
+	select_basic(detail::encoding_descriptor<integer_t> &desc,
+		     const detail::encoding_statistics<integer_t> &stat)
 	{
-		statistics stat;
 		size_t space, metaspace, nbits;
 
 		//
-		// Collect value statistics and compute the memory
-		// footprint of varint representation.
+		// Compute the memory footprint of varint
+		// representation.
 		//
 
-		space = 0;
-		for (SrcIter src = sbegin; src != send; ++src) {
-			original_t value = *src;
-			space += varint::value_space(value);
-			stat.add(value);
-		}
-
 		desc.encoding = encoding_t::varint;
-		desc.space = space;
+		desc.dataspace = stat.varintspace();
 
 		//
 		// Compute the memory footprint of normal
 		// representation.
 		//
 
-		space = normal::space(stat.nvalues);
-		if (space <= desc.space) {
+		space = stat.normalspace();
+		if (space <= desc.dataspace) {
 			desc.encoding = encoding_t::normal;
-			desc.space = space;
-		}
-
-		//
-		// Check for corner cases.
-		//
-
-		if (stat.nvalues == 0)
-			return;
-		if (stat.minvalue == stat.maxvalue) {
-			desc.encoding = encoding_t::naught;
-			desc.space = 0;
-			desc.metaspace = varint::value_space(stat.minvalue);
-			desc.base = stat.minvalue;
-			return;
+			desc.dataspace = space;
 		}
 
 		//
@@ -308,23 +362,23 @@ private:
 		// Find the maximum value to be encoded.
 		unsigned_t umaxvalue;
 		if (std::is_signed<original_t>()) {
-			unsigned_t minvalue = zigzag::encode(stat.minvalue);
-			unsigned_t maxvalue = zigzag::encode(stat.maxvalue);
+			unsigned_t minvalue = zigzag::encode(stat.minvalue());
+			unsigned_t maxvalue = zigzag::encode(stat.maxvalue());
 			umaxvalue = std::max(minvalue, maxvalue);
 		} else {
-			umaxvalue = stat.maxvalue;
+			umaxvalue = stat.maxvalue();
 		}
 
 		// Find the number of bits per value.
 		nbits = integer_traits<unsigned_t>::usedcount(umaxvalue);
 
 		// Account for the memory required to encode all values.
-		space = bitpck::block_codec::space(stat.nvalues, nbits);
+		space = bitpck::block_codec::space(stat.nvalues(), nbits);
 		// The memory required to encode the nbits value.
 		metaspace = 1;
-		if ((space + metaspace) < (desc.space + desc.metaspace)) {
+		if ((space + metaspace) < (desc.dataspace + desc.metaspace)) {
 			desc.encoding = encoding_t::bitpck;
-			desc.space = space;
+			desc.dataspace = space;
 			desc.metaspace = metaspace;
 			desc.nbits = nbits;
 		}
@@ -335,29 +389,29 @@ private:
 		//
 
 		// Find the range of values to be encoded.
-		unsigned_t range = stat.maxvalue - stat.minvalue;
+		unsigned_t range = stat.maxvalue() - stat.minvalue();
 
 		// Find the number of bits per value.
 		nbits = integer_traits<unsigned_t>::usedcount(range);
 
 		// Account for the memory required to encode all values.
-		space = bitpck::block_codec::space(stat.nvalues, nbits);
+		space = bitpck::block_codec::space(stat.nvalues(), nbits);
 		// The memory required to store the nbits and base values.
-		metaspace = 1 + varint::value_space(stat.minvalue);
-		if ((space + metaspace) < (desc.space + desc.metaspace)) {
+		metaspace = 1 + varint::value_space(stat.minvalue());
+		if ((space + metaspace) < (desc.dataspace + desc.metaspace)) {
 			desc.encoding = encoding_t::bitfor;
-			desc.space = space;
+			desc.dataspace = space;
 			desc.metaspace = metaspace;
-			desc.base = stat.minvalue;
+			desc.base = stat.minvalue();
 			desc.nbits = nbits;
 		}
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename integer_t, typename DstIter, typename SrcIter>
 	static bool
 	encode_basic(DstIter &dbegin, DstIter const dend,
 		     SrcIter &sbegin, SrcIter const send,
-		     value_desc &desc)
+		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:
@@ -375,11 +429,11 @@ private:
 		return false;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename integer_t, typename DstIter, typename SrcIter>
 	static bool
 	decode_basic(DstIter &dbegin, DstIter const dend,
 		     SrcIter &sbegin, SrcIter const send,
-		     value_desc &desc)
+		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:

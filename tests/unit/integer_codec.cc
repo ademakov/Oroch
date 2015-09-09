@@ -20,12 +20,12 @@ TEST_CASE("integer codec", "[codec]") {
 		codec::select(meta, i_it, i_end);
 
 		INFO("encoding: " << (int) meta.value_desc.encoding <<
-		     ", space: " << meta.value_desc.space <<
+		     ", space: " << meta.value_desc.dataspace <<
 		     ", base: " <<  meta.value_desc.base <<
 		     ", nbits: " << meta.value_desc.nbits <<
 		     ", size: " << n);
 
-		std::vector<uint8_t> bytes(meta.space());
+		std::vector<uint8_t> bytes(meta.dataspace());
 		auto b_it = bytes.begin();
 		REQUIRE(codec::encode(b_it, bytes.end(), i_it, i_end, meta));
 
