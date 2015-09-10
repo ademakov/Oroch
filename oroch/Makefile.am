@@ -9,5 +9,6 @@ include_HEADERS = \
     integer_traits.h \
     naught.h \
     normal.h \
+    origin.h \
     varint.h \
     zigzag.h
