@@ -405,7 +405,7 @@ private:
 		metaspace = 1 + varint::value_space(stat.minvalue());
 
 		// Finally try it.
-		compare(desc, encoding_t::bitpck, metaspace, dataspace,
+		compare(desc, encoding_t::bitfor, metaspace, dataspace,
 			stat.minvalue(), nbits);
 	}
 
