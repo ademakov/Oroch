@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <oroch/bitpck.h>
+#include <oroch/origin.h>
 
 namespace oroch {
 
@@ -42,7 +43,7 @@ public:
 	struct exceptions
 	{
 		std::vector<size_t> indices;
-		std::vector<original_t> values;
+		std::vector<unsigned_t> values;
 
 		size_t index = 0;
 
@@ -54,18 +55,26 @@ public:
 		}
 	};
 
-	struct parameters
+	struct parameters : public origin_codec<original_t>
 	{
 	public:
+		using basic_value_codec = origin_codec<original_t>;
+
 		parameters(original_t f, size_t n, exceptions &x)
-		: base(f), nbits(n), mask((1ul << n) - 1), excpts(x)
+		: basic_value_codec(f), nbits(n), mask((1ul << n) - 1), excpts(x)
 		{
+		}
+
+		unsigned_t
+		basic_value_encode(original_t v) const
+		{
+			return basic_value_codec::value_encode(v);
 		}
 
 		unsigned_t
 		value_encode(original_t v)
 		{
-			unsigned_t u = unsigned_t(v - base);
+			unsigned_t u = basic_value_encode(v);
 			if ((u & ~mask) != 0) {
 				excpts.indices.push_back(excpts.index);
 				excpts.values.push_back(u >> nbits);
@@ -74,13 +83,6 @@ public:
 			return u;
 		}
 
-		original_t
-		value_decode(unsigned_t v)
-		{
-			return original_t(v + base);
-		}
-
-		const original_t base;
 		const size_t nbits;
 		const unsigned_t mask;
 		exceptions &excpts;
@@ -105,9 +107,9 @@ public:
 					      params.nbits, params);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
 			size_t index = params.excpts.indices[i];
-			original_t value = darray[index] - params.base;
+			unsigned_t value = params.basic_value_encode(darray[index]);
 			value |= params.excpts.values[i] << params.nbits;
-			darray[index] = value + params.base;
+			darray[index] = params.value_decode(value);
 		}
 		return rc;
 	}

@@ -25,6 +25,7 @@
 #define OROCH_BITFOR_H_
 
 #include <oroch/bitpck.h>
+#include <oroch/origin.h>
 
 namespace oroch {
 
@@ -45,26 +46,13 @@ public:
 	using basic_codec = bitpck_codec<original_t>;
 	using block_codec = typename basic_codec::block_codec;
 
-	struct parameters
+	struct parameters : public origin_codec<original_t>
 	{
 		parameters(original_t f, size_t n)
-		: base(f), nbits(n)
+		: origin_codec<original_t>(f), nbits(n)
 		{
 		}
 
-		unsigned_t
-		value_encode(original_t v)
-		{
-			return unsigned_t(v - base);
-		}
-
-		original_t
-		value_decode(unsigned_t v)
-		{
-			return original_t(v + base);
-		}
-
-		const original_t base;
 		const size_t nbits;
 	};
 
