@@ -43,23 +43,24 @@ namespace oroch {
 //
 // The codec automatically applies zigzag encoding if used on signed types.
 //
-template <typename T>
+template <typename T, template<typename> class V = zigzag_codec>
 class varint_codec
 {
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using value_codec = zigzag_codec<original_t>;
+	using value_codec = V<original_t>;
 
 	// The maximum number of bytes needed to encode an integer.
 	static constexpr size_t nbytemax = (integer_traits<original_t>::nbits + 6) / 7;
 
 	// The number of bytes needed to encode a given integer.
 	static size_t
-	value_space(original_t src)
+	value_space(original_t src,
+		    value_codec vcodec = value_codec())
 	{
 		size_t count = 1;
-		unsigned_t value = value_codec().value_encode(src);
+		unsigned_t value = vcodec.value_encode(src);
 		while (value >= 0x80) {
 			value >>= 7;
 			count++;
@@ -69,20 +70,22 @@ public:
 
 	template<typename SrcIter>
 	static size_t
-	space(SrcIter const sbegin, SrcIter const send)
+	space(SrcIter const sbegin, SrcIter const send,
+	      value_codec vcodec = value_codec())
 	{
 		size_t count = 0;
 		for (SrcIter src = sbegin; src != send; ++src)
-			count += value_space(*src);
+			count += value_space(*src, vcodec);
 		return count;
 	}
 
 	template<typename DstIter>
 	static bool
-	encode(DstIter &dbegin, DstIter const dend, original_t src)
+	encode(DstIter &dbegin, DstIter const dend, original_t src,
+	       value_codec vcodec = value_codec())
 	{
 		DstIter dst = dbegin;
-		unsigned_t value = value_codec().value_encode(src);
+		unsigned_t value = vcodec.value_encode(src);
 
 		while (value >= 0x80) {
 			if (dst >= dend)
@@ -101,7 +104,8 @@ public:
 
 	template<typename SrcIter>
 	static bool
-	decode(original_t &dst, SrcIter &sbegin, SrcIter const send)
+	decode(original_t &dst, SrcIter &sbegin, SrcIter const send,
+	       value_codec vcodec = value_codec())
 	{
 		SrcIter src = sbegin;
 
@@ -131,7 +135,7 @@ public:
 			}
 		}
 
-		dst = value_codec().value_decode(value);
+		dst = vcodec.value_decode(value);
 		sbegin = src;
 		return true;
 	}
@@ -139,14 +143,15 @@ public:
 	template<typename DstIter, typename SrcIter>
 	static bool
 	encode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	       SrcIter &sbegin, SrcIter const send,
+	       value_codec vcodec = value_codec())
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
 		for (; src < send; ++src) {
-			if (!encode(dst, dend, *src)) {
+			if (!encode(dst, dend, *src, vcodec)) {
 				rc = false;
 				break;
 			}
@@ -160,14 +165,15 @@ public:
 	template<typename DstIter, typename SrcIter>
 	static bool
 	decode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send)
+	       SrcIter &sbegin, SrcIter const send,
+	       value_codec vcodec = value_codec())
 	{
 		bool rc = true;
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
 		for (; dst < dend; ++dst) {
-			if (!decode(*dst, src, send)) {
+			if (!decode(*dst, src, send, vcodec)) {
 				rc = false;
 				break;
 			}
