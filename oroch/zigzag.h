@@ -43,8 +43,6 @@ struct zigzag_codec
 
 	static constexpr int sign_shift = integer_traits<signed_t>::nbits - 1;
 
-	zigzag_codec() {}
-
 	static unsigned_t
 	encode(signed_t s)
 	{
@@ -90,13 +88,13 @@ struct zigzag_codec
 	}
 
 	unsigned_t
-	value_encode(original_t v)
+	value_encode(original_t v) const
 	{
 		return encode_if_signed(v);
 	}
 
 	original_t
-	value_decode(unsigned_t v)
+	value_decode(unsigned_t v) const
 	{
 		return decode_if_signed(v);
 	}
