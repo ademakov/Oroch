@@ -39,11 +39,11 @@
 namespace oroch {
 
 enum encoding_t : uint8_t {
-        naught = 0,
-        normal = 1,
-        varint = 2,
-        bitpck = 3,
-        bitfor = 4,
+	naught = 0,
+	normal = 1,
+	varint = 2,
+	bitpck = 3,
+	bitfor = 4,
 };
 
 namespace detail {
@@ -63,7 +63,7 @@ struct encoding_descriptor
 	size_t metaspace;
 
 	// The base value for frame-of-reference encodings.
-	original_t base;
+	original_t origin;
 
 	// The number of bits per integer for bit-packing encodings.
 	size_t nbits;
@@ -79,7 +79,7 @@ struct encoding_descriptor
 		encoding = encoding_t::normal;
 		dataspace = 0;
 		metaspace = 0;
-		base = 0;
+		origin = 0;
 		nbits = 0;
 	}
 };
@@ -183,14 +183,14 @@ struct encoding_metadata
 
 		switch (encoding) {
 		case encoding_t::naught:
-			if (!varint::encode(dst, dend, value_desc.base))
+			if (!varint::encode(dst, dend, value_desc.origin))
 				return false;
 			// no break at the end of case
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
 		case encoding_t::bitfor:
-			if (!varint::encode(dst, dend, value_desc.base))
+			if (!varint::encode(dst, dend, value_desc.origin))
 				return false;
 			// no break at the end of case
 		case encoding_t::bitpck:
@@ -217,14 +217,14 @@ struct encoding_metadata
 
 		switch (encoding) {
 		case encoding_t::naught:
-			if (!varint::decode(value_desc.base, src, send))
+			if (!varint::decode(value_desc.origin, src, send))
 				return false;
 			// no break at the end of case
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
 		case encoding_t::bitfor:
-			if (!varint::decode(value_desc.base, src, send))
+			if (!varint::decode(value_desc.origin, src, send))
 				return false;
 			// no break at the end of case
 		case encoding_t::bitpck:
@@ -283,7 +283,7 @@ public:
 			meta.value_desc.encoding = encoding_t::naught;
 			meta.value_desc.dataspace = 0;
 			meta.value_desc.metaspace = varint::value_space(value);
-			meta.value_desc.base = value;
+			meta.value_desc.origin = value;
 			return;
 		}
 
@@ -330,33 +330,42 @@ private:
 
 	template<typename integer_t>
 	static void
+	compare(detail::encoding_descriptor<integer_t> &desc,
+		encoding_t encoding, size_t metaspace, size_t dataspace,
+		integer_t origin, size_t nbits)
+	{
+		if ((dataspace + metaspace) < (desc.dataspace + desc.metaspace)) {
+			desc.encoding = encoding;
+			desc.dataspace = dataspace;
+			desc.metaspace = metaspace;
+			desc.origin = origin;
+			desc.nbits = nbits;
+		}
+	}
+
+	template<typename integer_t>
+	static void
 	select_basic(detail::encoding_descriptor<integer_t> &desc,
 		     const detail::encoding_statistics<integer_t> &stat)
 	{
-		size_t space, metaspace, nbits;
+		size_t dataspace, metaspace, nbits;
 
 		//
-		// Compute the memory footprint of varint
-		// representation.
+		// The base case is the normal representation.
 		//
 
-		desc.encoding = encoding_t::varint;
-		desc.dataspace = stat.varintspace();
+		desc.encoding = encoding_t::normal;
+		desc.dataspace = stat.normalspace();
 
 		//
-		// Compute the memory footprint of normal
-		// representation.
+		// Try it against the varint representation.
 		//
 
-		space = stat.normalspace();
-		if (space <= desc.dataspace) {
-			desc.encoding = encoding_t::normal;
-			desc.dataspace = space;
-		}
+		compare(desc, encoding_t::varint, 0, stat.varintspace(),
+			integer_t(0), 0);
 
 		//
-		// Compute the memory footprint of bit-packed
-		// representation.
+		// Try it against the bit-packed representation.
 		//
 
 		// Find the maximum value to be encoded.
@@ -373,19 +382,15 @@ private:
 		nbits = integer_traits<unsigned_t>::usedcount(umaxvalue);
 
 		// Account for the memory required to encode all values.
-		space = bitpck::block_codec::space(stat.nvalues(), nbits);
-		// The memory required to encode the nbits value.
-		metaspace = 1;
-		if ((space + metaspace) < (desc.dataspace + desc.metaspace)) {
-			desc.encoding = encoding_t::bitpck;
-			desc.dataspace = space;
-			desc.metaspace = metaspace;
-			desc.nbits = nbits;
-		}
+		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
+
+		// Finally try it.
+		compare(desc, encoding_t::bitpck, 1, dataspace,
+			integer_t(0), nbits);
 
 		//
-		// Compute the memory footprint of bit-packed
-		// with frame-of-reference representation.
+		// Try it against the bit-packed representation with frame of
+		// reference.
 		//
 
 		// Find the range of values to be encoded.
@@ -395,16 +400,13 @@ private:
 		nbits = integer_traits<unsigned_t>::usedcount(range);
 
 		// Account for the memory required to encode all values.
-		space = bitpck::block_codec::space(stat.nvalues(), nbits);
+		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
 		// The memory required to store the nbits and base values.
 		metaspace = 1 + varint::value_space(stat.minvalue());
-		if ((space + metaspace) < (desc.dataspace + desc.metaspace)) {
-			desc.encoding = encoding_t::bitfor;
-			desc.dataspace = space;
-			desc.metaspace = metaspace;
-			desc.base = stat.minvalue();
-			desc.nbits = nbits;
-		}
+
+		// Finally try it.
+		compare(desc, encoding_t::bitpck, metaspace, dataspace,
+			stat.minvalue(), nbits);
 	}
 
 	template<typename integer_t, typename DstIter, typename SrcIter>
@@ -423,7 +425,7 @@ private:
 		case encoding_t::bitpck:
 			return bitpck::encode(dbegin, dend, sbegin, send, desc.nbits);
 		case encoding_t::bitfor:
-			typename bitfor::parameters params(desc.base, desc.nbits);
+			typename bitfor::parameters params(desc.origin, desc.nbits);
 			return bitfor::encode(dbegin, dend, sbegin, send, params);
 		}
 		return false;
@@ -437,7 +439,7 @@ private:
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:
-			return naught::decode(dbegin, dend, sbegin, send, desc.base);
+			return naught::decode(dbegin, dend, sbegin, send, desc.origin);
 		case encoding_t::normal:
 			return normal::decode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
@@ -445,7 +447,7 @@ private:
 		case encoding_t::bitpck:
 			return bitpck::decode(dbegin, dend, sbegin, send, desc.nbits);
 		case encoding_t::bitfor:
-			typename bitfor::parameters params(desc.base, desc.nbits);
+			typename bitfor::parameters params(desc.origin, desc.nbits);
 			return bitfor::decode(dbegin, dend, sbegin, send, params);
 		}
 		return false;

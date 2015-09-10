@@ -21,7 +21,7 @@ TEST_CASE("integer codec", "[codec]") {
 
 		INFO("encoding: " << (int) meta.value_desc.encoding <<
 		     ", space: " << meta.value_desc.dataspace <<
-		     ", base: " <<  meta.value_desc.base <<
+		     ", origin: " <<  meta.value_desc.origin <<
 		     ", nbits: " << meta.value_desc.nbits <<
 		     ", size: " << n);
 
