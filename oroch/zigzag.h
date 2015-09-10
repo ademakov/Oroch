@@ -1,4 +1,4 @@
-// zigzag_codec.h
+// zigzag.h
 //
 // Copyright (c) 2015  Aleksey Demakov
 //
