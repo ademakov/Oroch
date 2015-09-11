@@ -421,9 +421,8 @@ private:
 
 		compare(desc, encoding_t::varint, 0, vispace,
 			integer_t(0), 0);
-		compare(desc, encoding_t::varfor, metaspace, vispace,
-			integer_t(0), 0);
-
+		compare(desc, encoding_t::varfor, metaspace, vfspace,
+			stat.min(), 0);
 	}
 
 	template<typename integer_t, typename DstIter, typename SrcIter>
