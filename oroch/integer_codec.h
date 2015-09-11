@@ -33,6 +33,7 @@
 #include <oroch/bitfor.h>
 #include <oroch/naught.h>
 #include <oroch/normal.h>
+#include <oroch/origin.h>
 #include <oroch/varint.h>
 #include <oroch/zigzag.h>
 
@@ -42,8 +43,9 @@ enum encoding_t : uint8_t {
 	naught = 0,
 	normal = 1,
 	varint = 2,
-	bitpck = 3,
-	bitfor = 4,
+	varfor = 3,
+	bitpck = 4,
+	bitfor = 5,
 };
 
 namespace detail {
@@ -93,11 +95,10 @@ public:
 	using varint = varint_codec<original_t>;
 
 	size_t nvalues() const { return nvalues_; }
-	size_t varintspace() const { return varintspace_; }
 	size_t normalspace() const { return nvalues() * sizeof(original_t); }
 
-	original_t minvalue() const { return minvalue_; }
-	original_t maxvalue() const { return maxvalue_; }
+	original_t min() const { return minvalue_; }
+	original_t max() const { return maxvalue_; }
 
 	void
 	add(original_t value)
@@ -107,7 +108,6 @@ public:
 			minvalue_ = value;
 		if (maxvalue_ < value)
 			maxvalue_ = value;
-		varintspace_ += varint::value_space(value);
 	}
 
 	template<typename Iter>
@@ -121,9 +121,6 @@ public:
 private:
 	// The total number of values.
 	size_t nvalues_ = 0;
-
-	// The memory footprint of varint encoding.
-	size_t varintspace_ = 0;
 
 	// The minimum and maximum values in the sequence.
 	original_t minvalue_ = std::numeric_limits<original_t>::max();
@@ -183,9 +180,10 @@ struct encoding_metadata
 
 		switch (encoding) {
 		case encoding_t::naught:
+		case encoding_t::varfor:
 			if (!varint::encode(dst, dend, value_desc.origin))
 				return false;
-			// no break at the end of case
+			break;
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
@@ -217,9 +215,10 @@ struct encoding_metadata
 
 		switch (encoding) {
 		case encoding_t::naught:
+		case encoding_t::varfor:
 			if (!varint::decode(value_desc.origin, src, send))
 				return false;
-			// no break at the end of case
+			break;
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
@@ -251,7 +250,9 @@ public:
 	using bitfor = bitfor_codec<original_t>;
 	using naught = naught_codec<original_t>;
 	using normal = normal_codec<original_t>;
-	using varint = varint_codec<original_t>;
+	using varint = varint_codec<original_t, zigzag_codec>;
+	using varfor = varint_codec<original_t, origin_codec>;
+	using origin = origin_codec<original_t>;
 	using zigzag = zigzag_codec<original_t>;
 
 	template<typename SrcIter>
@@ -278,8 +279,8 @@ public:
 		}
 
 		// A constant or singular sequence.
-		if (vstat.minvalue() == vstat.maxvalue()) {
-			original_t value = vstat.minvalue();
+		if (vstat.min() == vstat.max()) {
+			original_t value = vstat.min();
 			meta.value_desc.encoding = encoding_t::naught;
 			meta.value_desc.dataspace = 0;
 			meta.value_desc.metaspace = varint::value_space(value);
@@ -291,7 +292,7 @@ public:
 		// Analyze sequence and select the best encoding.
 		//
 
-		select_basic(meta.value_desc, vstat);
+		select_basic(meta.value_desc, vstat, sbegin, send);
 	}
 
 	template<typename DstIter>
@@ -343,10 +344,11 @@ private:
 		}
 	}
 
-	template<typename integer_t>
+	template<typename integer_t, typename SrcIter>
 	static void
 	select_basic(detail::encoding_descriptor<integer_t> &desc,
-		     const detail::encoding_statistics<integer_t> &stat)
+		     const detail::encoding_statistics<integer_t> &stat,
+		     SrcIter src, SrcIter const send)
 	{
 		size_t dataspace, metaspace, nbits;
 
@@ -358,30 +360,23 @@ private:
 		desc.dataspace = stat.normalspace();
 
 		//
-		// Try it against the varint representation.
-		//
-
-		compare(desc, encoding_t::varint, 0, stat.varintspace(),
-			integer_t(0), 0);
-
-		//
 		// Try it against the bit-packed representation.
 		//
 
 		// Find the maximum value to be encoded.
 		unsigned_t umaxvalue;
 		if (std::is_signed<original_t>()) {
-			unsigned_t minvalue = zigzag::encode(stat.minvalue());
-			unsigned_t maxvalue = zigzag::encode(stat.maxvalue());
-			umaxvalue = std::max(minvalue, maxvalue);
+			unsigned_t min = zigzag::encode(stat.min());
+			unsigned_t max = zigzag::encode(stat.max());
+			umaxvalue = std::max(min, max);
 		} else {
-			umaxvalue = stat.maxvalue();
+			umaxvalue = stat.max();
 		}
 
 		// Find the number of bits per value.
 		nbits = integer_traits<unsigned_t>::usedcount(umaxvalue);
 
-		// Account for the memory required to encode all values.
+		// Account for the memory required to encode all data values.
 		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
 
 		// Finally try it.
@@ -394,19 +389,41 @@ private:
 		//
 
 		// Find the range of values to be encoded.
-		unsigned_t range = stat.maxvalue() - stat.minvalue();
+		unsigned_t range = stat.max() - stat.min();
 
 		// Find the number of bits per value.
 		nbits = integer_traits<unsigned_t>::usedcount(range);
 
-		// Account for the memory required to encode all values.
+		// Account for the memory required to encode all data values.
 		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
-		// The memory required to store the nbits and base values.
-		metaspace = 1 + varint::value_space(stat.minvalue());
+		// The memory required to store the nbits and origin values.
+		metaspace = 1 + varint::value_space(stat.min());
 
 		// Finally try it.
 		compare(desc, encoding_t::bitfor, metaspace, dataspace,
-			stat.minvalue(), nbits);
+			stat.min(), nbits);
+
+		//
+		// Try it against the varint representation.
+		//
+
+		// Count the memory footprint of the two kinds of varints.
+		size_t vispace = 0, vfspace = 0;
+		for (; src != send; ++src) {
+			original_t value = *src;
+			vispace += varint::value_space(value);
+			vfspace += varfor::value_space(
+					value, origin(stat.min()));
+		}
+
+		// The memory required to store the origin value.
+		metaspace = varint::value_space(stat.min());
+
+		compare(desc, encoding_t::varint, 0, vispace,
+			integer_t(0), 0);
+		compare(desc, encoding_t::varint, metaspace, vispace,
+			integer_t(0), 0);
+
 	}
 
 	template<typename integer_t, typename DstIter, typename SrcIter>
@@ -422,6 +439,9 @@ private:
 			return normal::encode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
 			return varint::encode(dbegin, dend, sbegin, send);
+		case encoding_t::varfor:
+			return varfor::encode(dbegin, dend, sbegin, send,
+					      origin(desc.origin));
 		case encoding_t::bitpck:
 			return bitpck::encode(dbegin, dend, sbegin, send, desc.nbits);
 		case encoding_t::bitfor:
@@ -444,6 +464,9 @@ private:
 			return normal::decode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
 			return varint::decode(dbegin, dend, sbegin, send);
+		case encoding_t::varfor:
+			return varfor::decode(dbegin, dend, sbegin, send,
+					      origin(desc.origin));
 		case encoding_t::bitpck:
 			return bitpck::decode(dbegin, dend, sbegin, send, desc.nbits);
 		case encoding_t::bitfor:
