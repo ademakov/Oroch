@@ -289,10 +289,10 @@ public:
 		}
 
 		//
-		// Analyze sequence and select the best encoding.
+		// Select the best encoding for the sequence.
 		//
 
-		select_basic(meta.value_desc, vstat, sbegin, send);
+		select_best(meta, vstat, sbegin, send);
 	}
 
 	template<typename DstIter>
@@ -346,6 +346,28 @@ private:
 
 	template<typename integer_t, typename SrcIter>
 	static void
+	select_best(metadata &meta,
+		    const detail::encoding_statistics<integer_t> &vstat,
+		    SrcIter src, SrcIter const send)
+	{
+		//
+		// Select the best basic encoding.
+		//
+
+		select_basic(meta.value_desc, vstat, src, send);
+		if (vstat.nvalues() < 4)
+			return;
+
+		//
+		// TODO:
+		//
+		// Try it against bit-packing with frame of reference and
+		// patching.
+		//
+	}
+
+	template<typename integer_t, typename SrcIter>
+	static void
 	select_basic(detail::encoding_descriptor<integer_t> &desc,
 		     const detail::encoding_statistics<integer_t> &stat,
 		     SrcIter src, SrcIter const send)
@@ -364,17 +386,17 @@ private:
 		//
 
 		// Find the maximum value to be encoded.
-		unsigned_t umaxvalue;
+		unsigned_t umax;
 		if (std::is_signed<original_t>()) {
 			unsigned_t min = zigzag::encode(stat.min());
 			unsigned_t max = zigzag::encode(stat.max());
-			umaxvalue = std::max(min, max);
+			umax = std::max(min, max);
 		} else {
-			umaxvalue = stat.max();
+			umax = stat.max();
 		}
 
 		// Find the number of bits per value.
-		nbits = integer_traits<unsigned_t>::usedcount(umaxvalue);
+		nbits = integer_traits<unsigned_t>::usedcount(umax);
 
 		// Account for the memory required to encode all data values.
 		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
@@ -408,12 +430,12 @@ private:
 		//
 
 		// Count the memory footprint of the two kinds of varints.
+		const origin orig(stat.min());
 		size_t vispace = 0, vfspace = 0;
 		for (; src != send; ++src) {
-			original_t value = *src;
-			vispace += varint::value_space(value);
-			vfspace += varfor::value_space(
-					value, origin(stat.min()));
+			original_t val = *src;
+			vispace += varint::value_space(val);
+			vfspace += varfor::value_space(val, orig);
 		}
 
 		// The memory required to store the origin value.
