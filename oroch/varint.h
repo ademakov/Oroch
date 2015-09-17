@@ -54,7 +54,7 @@ public:
 	// The maximum number of bytes needed to encode an integer.
 	static constexpr size_t nbytemax = (integer_traits<original_t>::nbits + 6) / 7;
 
-	// The number of bytes needed to encode a given integer.
+	// Get the number of bytes needed to encode a given integer value.
 	static size_t
 	value_space(original_t src,
 		    value_codec vcodec = value_codec())
@@ -68,120 +68,71 @@ public:
 		return count;
 	}
 
+	// Get the number of bytes needed to encode a given integer sequence.
 	template<typename SrcIter>
 	static size_t
-	space(SrcIter const sbegin, SrcIter const send,
+	space(SrcIter const src, SrcIter const send,
 	      value_codec vcodec = value_codec())
 	{
 		size_t count = 0;
-		for (SrcIter src = sbegin; src != send; ++src)
-			count += value_space(*src, vcodec);
+		while (src != send)
+			count += value_space(*src++, vcodec);
 		return count;
 	}
 
 	template<typename DstIter>
-	static bool
-	encode(DstIter &dbegin, DstIter const dend, original_t src,
+	static void
+	encode(DstIter &dst, original_t src,
 	       value_codec vcodec = value_codec())
 	{
-		DstIter dst = dbegin;
 		unsigned_t value = vcodec.value_encode(src);
-
 		while (value >= 0x80) {
-			if (dst >= dend)
-				return false;
 			*dst++ = uint8_t(value | 0x80);
 			value >>= 7;
 		}
-
-		if (dst >= dend)
-			return false;
 		*dst++ = uint8_t(value);
-
-		dbegin = dst;
-		return true;
 	}
 
 	template<typename SrcIter>
-	static bool
-	decode(original_t &dst, SrcIter &sbegin, SrcIter const send,
+	static void
+	decode(original_t &dst, SrcIter &src,
 	       value_codec vcodec = value_codec())
 	{
-		SrcIter src = sbegin;
-
-		if (src >= send) {
-			dst = 0;
-			return false;
-		}
 		unsigned_t value = uint8_t(*src++);
-
 		if (int8_t(value) < 0) {
 			value &= 0x7f;
 			int shift = 7;
 			for (;;) {
-				if (src >= send) {
-					dst = 0;
-					return false;
-				}
 				uint8_t byte = *src++;
-
 				if (int8_t(byte) > 0) {
 					value |= unsigned_t(byte) << shift;
 					break;
 				}
-
 				value |= unsigned_t(byte & 0x7f) << shift;
 				shift += 7;
 			}
 		}
-
 		dst = vcodec.value_decode(value);
-		sbegin = src;
+	}
+
+	template<typename DstIter, typename SrcIter>
+	static bool
+	encode(DstIter &dst, SrcIter &src, SrcIter const send,
+	       value_codec vcodec = value_codec())
+	{
+		while (src != send)
+			encode(dst, *src++, vcodec);
 		return true;
 	}
 
 	template<typename DstIter, typename SrcIter>
 	static bool
-	encode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
+	decode(DstIter &dst, SrcIter &src, SrcIter const send,
 	       value_codec vcodec = value_codec())
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
-		for (; src < send; ++src) {
-			if (!encode(dst, dend, *src, vcodec)) {
-				rc = false;
-				break;
-			}
-		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
-	}
-
-	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       value_codec vcodec = value_codec())
-	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
-		for (; dst < dend; ++dst) {
-			if (!decode(*dst, src, send, vcodec)) {
-				rc = false;
-				break;
-			}
-		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
+		while (src != send)
+			decode(*dst++, src, vcodec);
+		return true;
 	}
 };
 

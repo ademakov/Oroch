@@ -11,45 +11,45 @@ TEST_CASE("varint codec for single value", "[varint]") {
 	std::array<uint8_t, 10> bytes;
 
 	auto it = bytes.begin();
-	REQUIRE(varint32::encode(it, bytes.end(), 1));
+	varint32::encode(it, 1);
 	REQUIRE(it == bytes.begin() + 1);
 	REQUIRE(bytes[0] == 1);
 
 	it = bytes.begin();
-	REQUIRE(varint32::encode(it, bytes.end(), 2));
+	varint32::encode(it, 2);
 	REQUIRE(it == bytes.begin() + 1);
 	REQUIRE(bytes[0] == 2);
 
 	it = bytes.begin();
-	REQUIRE(varint32::encode(it, bytes.end(), 127));
+	varint32::encode(it, 127);
 	REQUIRE(it == bytes.begin() + 1);
 	REQUIRE(bytes[0] == 127);
 
 	it = bytes.begin();
-	REQUIRE(varint32::encode(it, bytes.end(), 128));
+	varint32::encode(it, 128);
 	REQUIRE(it == bytes.begin() + 2);
 	REQUIRE(bytes[0] == 128);
 	REQUIRE(bytes[1] == 1);
 
 	for (uint32_t i = 1; i != 0; i += i) {
 		it = bytes.begin();
-		REQUIRE(varint32::encode(it, bytes.end(), i));
+		varint32::encode(it, i);
 
 		uint32_t j;
 		auto it_end = it;
 		it = bytes.begin();
-		REQUIRE(varint32::decode(j, it, it_end));
+		varint32::decode(j, it);
 		REQUIRE(i == j);
 	}
 
 	for (uint64_t i = 1; i != 0; i += i) {
 		it = bytes.begin();
-		REQUIRE(varint64::encode(it, bytes.end(), i));
+		varint64::encode(it, i);
 
 		uint64_t j;
 		auto it_end = it;
 		it = bytes.begin();
-		REQUIRE(varint64::decode(j, it, it_end));
+		varint64::decode(j, it);
 		REQUIRE(i == j);
 	}
 }
@@ -62,12 +62,12 @@ TEST_CASE("varint codec for array", "[varint]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(varint32::encode(b_it, bytes.end(), i_it, integers.end()));
+	varint32::encode(b_it, i_it, integers.end());
 
 	std::array<uint32_t, 5> integers2;
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(varint32::decode(i_it, integers2.end(), b_it, bytes.end()));
+	varint32::decode(i_it, b_it, bytes.end());
 
 	for (size_t i = 0; i < integers.size(); i++) {
 		REQUIRE(integers[i] == integers2[i]);

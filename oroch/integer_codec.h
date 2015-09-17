@@ -181,15 +181,13 @@ struct encoding_metadata
 		switch (encoding) {
 		case encoding_t::naught:
 		case encoding_t::varfor:
-			if (!varint::encode(dst, dend, value_desc.origin))
-				return false;
+			varint::encode(dst, value_desc.origin);
 			break;
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
 		case encoding_t::bitfor:
-			if (!varint::encode(dst, dend, value_desc.origin))
-				return false;
+			varint::encode(dst, value_desc.origin);
 			// no break at the end of case
 		case encoding_t::bitpck:
 			if (dst == dend)
@@ -216,15 +214,13 @@ struct encoding_metadata
 		switch (encoding) {
 		case encoding_t::naught:
 		case encoding_t::varfor:
-			if (!varint::decode(value_desc.origin, src, send))
-				return false;
+			varint::decode(value_desc.origin, src);
 			break;
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
 		case encoding_t::bitfor:
-			if (!varint::decode(value_desc.origin, src, send))
-				return false;
+			varint::decode(value_desc.origin, src);
 			// no break at the end of case
 		case encoding_t::bitpck:
 			if (src == send)
@@ -459,9 +455,9 @@ private:
 		case encoding_t::normal:
 			return normal::encode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
-			return varint::encode(dbegin, dend, sbegin, send);
+			return varint::encode(dbegin, sbegin, send);
 		case encoding_t::varfor:
-			return varfor::encode(dbegin, dend, sbegin, send,
+			return varfor::encode(dbegin, sbegin, send,
 					      origin(desc.origin));
 		case encoding_t::bitpck:
 			return bitpck::encode(dbegin, dend, sbegin, send, desc.nbits);
@@ -484,9 +480,9 @@ private:
 		case encoding_t::normal:
 			return normal::decode(dbegin, dend, sbegin, send);
 		case encoding_t::varint:
-			return varint::decode(dbegin, dend, sbegin, send);
+			return varint::decode(dbegin, sbegin, send);
 		case encoding_t::varfor:
-			return varfor::decode(dbegin, dend, sbegin, send,
+			return varfor::decode(dbegin, sbegin, send,
 					      origin(desc.origin));
 		case encoding_t::bitpck:
 			return bitpck::decode(dbegin, dend, sbegin, send, desc.nbits);
