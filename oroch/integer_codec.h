@@ -168,13 +168,9 @@ struct encoding_metadata
 	}
 
 	template<typename DstIter>
-	bool
-	encode(DstIter &dbegin, DstIter const dend) const
+	void
+	encode(DstIter &dst) const
 	{
-		DstIter dst = dbegin;
-		if (dst == dend)
-			return false;
-
 		encoding_t encoding = value_desc.encoding;
 		*dst++ = encoding;
 
@@ -190,24 +186,15 @@ struct encoding_metadata
 			varint::encode(dst, value_desc.origin);
 			// no break at the end of case
 		case encoding_t::bitpck:
-			if (dst == dend)
-				return false;
 			*dst++ = value_desc.nbits;
 			break;
 		}
-
-		dbegin = dst;
-		return true;
 	}
 
 	template<typename SrcIter>
-	bool
-	decode(SrcIter &sbegin, SrcIter const send)
+	void
+	decode(SrcIter &src)
 	{
-		SrcIter src = sbegin;
-		if (src == send)
-			return false;
-
 		encoding_t encoding = static_cast<encoding_t>(*src++);
 		value_desc.encoding = encoding;
 
@@ -223,14 +210,9 @@ struct encoding_metadata
 			varint::decode(value_desc.origin, src);
 			// no break at the end of case
 		case encoding_t::bitpck:
-			if (src == send)
-				return false;
 			value_desc.nbits = *src++;
 			break;
 		}
-
-		sbegin = src;
-		return true;
 	}
 };
 
@@ -292,17 +274,17 @@ public:
 	}
 
 	template<typename DstIter>
-	static bool
-	encode_meta(DstIter &dst, DstIter const dend, metadata &meta)
+	static void
+	encode_meta(DstIter &dst, metadata &meta)
 	{
-		return meta.encode(dst, dend);
+		meta.encode(dst);
 	}
 
 	template<typename SrcIter>
-	static bool
-	decode_meta(SrcIter &src, SrcIter const send, metadata &meta)
+	static void
+	decode_meta(SrcIter &src, metadata &meta)
 	{
-		return meta.decode(src, send);
+		meta.decode(src);
 	}
 
 	template<typename DstIter, typename SrcIter>

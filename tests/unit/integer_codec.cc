@@ -51,9 +51,9 @@ TEST_CASE("integer codec metadata", "[codec]") {
 	     ", mataspace: " << meta.value_desc.metaspace);
 
 	auto b_it = bytes.begin();
-	REQUIRE(codec::encode_meta(b_it, bytes.end(), meta));
+	codec::encode_meta(b_it, meta);
 	b_it = bytes.begin();
-	REQUIRE(codec::decode_meta(b_it, bytes.end(), meta2));
+	codec::decode_meta(b_it, meta2);
 	REQUIRE(meta2.value_desc.encoding == meta.value_desc.encoding);
 
 }
