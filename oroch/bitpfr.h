@@ -89,29 +89,24 @@ public:
 	};
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
-	       parameters &params)
+	static void
+	encode(DstIter &dbegin, SrcIter &sbegin, SrcIter send, parameters &params)
 	{
-		return basic_codec::encode(dbegin, dend, sbegin, send,
-					   params.nbits, params);
+		basic_codec::encode(dbegin, sbegin, send, params.nbits, params);
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
-	       const parameters &params)
+	static void
+	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, const parameters &params)
 	{
 		DstIter darray = dbegin;
-		bool rc = basic_codec::decode(dbegin, dend, sbegin, send,
-					      params.nbits, params);
+		basic_codec::decode(dbegin, dend, sbegin, params.nbits, params);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
 			size_t index = params.excpts.indices[i];
 			unsigned_t value = params.basic_value_encode(darray[index]);
 			value |= params.excpts.values[i] << params.nbits;
 			darray[index] = params.value_decode(value);
 		}
-		return rc;
 	}
 };
 

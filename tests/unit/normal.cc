@@ -17,11 +17,11 @@ TEST_CASE("normal value codec", "[normal]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end()));
+	codec::encode(b_it, i_it, integers.end());
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end()));
+	codec::decode(i_it, integers2.end(), b_it);
 
 	for (int i = 0; i < INTS; i++) {
 		REQUIRE(integers2[i] == integers[i]);

@@ -45,13 +45,13 @@ TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), params));
+	codec::encode(b_it, i_it, integers.end(), params);
 	REQUIRE(excpts.indices.size() == LARGE);
 	REQUIRE(excpts.values.size() == LARGE);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), params));
+	codec::decode(i_it, integers2.end(), b_it, params);
 
 	for (int i = 0; i < INTS; i++) {
 		REQUIRE(integers2[i] == integers[i]);
@@ -75,13 +75,13 @@ TEST_CASE("bitpfr codec for signed values", "[bitpfr]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), params));
+	codec::encode(b_it, i_it, integers.end(), params);
 	REQUIRE(excpts.indices.size() == LARGE);
 	REQUIRE(excpts.values.size() == LARGE);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), params));
+	codec::decode(i_it, integers2.end(), b_it, params);
 
 	for (int i = 0; i < INTS; i++) {
 		REQUIRE(integers2[i] == integers[i]);

@@ -71,16 +71,10 @@ public:
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
-	static bool
-	encode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       const size_t nbits,
-	       ValueCodec value_codec = ValueCodec())
+	static void
+	encode(DstIter &dbegin, SrcIter &sbegin, SrcIter const send,
+	       const size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
-		size_t size = std::distance(dbegin, dend);
-		if (size < block_size)
-			return false;
-
 		const size_t c = capacity(nbits);
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
 
@@ -135,21 +129,14 @@ public:
 
 		dbegin += block_size;
 		sbegin = src;
-		return true;
 	}
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
-	static bool
-	decode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       const size_t nbits,
-	       ValueCodec value_codec = ValueCodec())
+	static void
+	decode(DstIter &dbegin, DstIter const dend, SrcIter &sbegin,
+	       const size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
-		size_t size = std::distance(sbegin, send);
-		if (size < block_size)
-			return false;
-
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;
 
@@ -188,15 +175,13 @@ public:
 
 		sbegin += block_size;
 		dbegin = dst;
-		return true;
 	}
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static void
 	decode(DstIter &dbegin, SrcIter &sbegin,
-	       const size_t nbits,
-	       ValueCodec value_codec = ValueCodec())
+	       const size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
 		DstIter dst = dbegin;
 		SrcIter src = sbegin;

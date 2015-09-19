@@ -27,12 +27,12 @@ TEST_CASE("integer codec", "[codec]") {
 
 		std::vector<uint8_t> bytes(meta.dataspace());
 		auto b_it = bytes.begin();
-		REQUIRE(codec::encode(b_it, bytes.end(), i_it, i_end, meta));
+		codec::encode(b_it, i_it, i_end, meta);
 
 		b_it = bytes.begin();
 		i_it = integers2.begin();
 		i_end = i_it + n;
-		REQUIRE(codec::decode(i_it, i_end, b_it, bytes.end(), meta));
+		codec::decode(i_it, i_end, b_it, meta);
 		for (int i = 0; i < n; i++)
 			REQUIRE(integers2[i] == integers[i]);
 	}

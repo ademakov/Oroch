@@ -293,34 +293,30 @@ public:
 
 	template<typename DstIter>
 	static bool
-	encode_meta(DstIter &dbegin, DstIter const dend, metadata &meta)
+	encode_meta(DstIter &dst, DstIter const dend, metadata &meta)
 	{
-		return meta.encode(dbegin, dend);
+		return meta.encode(dst, dend);
 	}
 
 	template<typename SrcIter>
 	static bool
-	decode_meta(SrcIter &sbegin, SrcIter const send, metadata &meta)
+	decode_meta(SrcIter &src, SrcIter const send, metadata &meta)
 	{
-		return meta.decode(sbegin, send);
+		return meta.decode(src, send);
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	encode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       metadata &meta)
+	static void
+	encode(DstIter &dbegin, SrcIter &sbegin, SrcIter const send, metadata &meta)
 	{
-		return encode_basic(dbegin, dend, sbegin, send, meta.value_desc);
+		encode_basic(dbegin, sbegin, send, meta.value_desc);
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dbegin, DstIter const dend,
-	       SrcIter &sbegin, SrcIter const send,
-	       metadata &meta)
+	static void
+	decode(DstIter &dbegin, DstIter const dend, SrcIter &sbegin, metadata &meta)
 	{
-		return decode_basic(dbegin, dend, sbegin, send, meta.value_desc);
+		decode_basic(dbegin, dend, sbegin, meta.value_desc);
 	}
 
 private:
@@ -444,53 +440,59 @@ private:
 	}
 
 	template<typename integer_t, typename DstIter, typename SrcIter>
-	static bool
-	encode_basic(DstIter &dbegin, DstIter const dend,
-		     SrcIter &sbegin, SrcIter const send,
+	static void
+	encode_basic(DstIter &dst, SrcIter &src, SrcIter const send,
 		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:
-			return naught::encode(dbegin, dend, sbegin, send);
+			naught::encode(dst, src, send);
+			break;
 		case encoding_t::normal:
-			return normal::encode(dbegin, dend, sbegin, send);
+			normal::encode(dst, src, send);
+			break;
 		case encoding_t::varint:
-			return varint::encode(dbegin, sbegin, send);
+			varint::encode(dst, src, send);
+			break;
 		case encoding_t::varfor:
-			return varfor::encode(dbegin, sbegin, send,
-					      origin(desc.origin));
+			varfor::encode(dst, src, send, origin(desc.origin));
+			break;
 		case encoding_t::bitpck:
-			return bitpck::encode(dbegin, dend, sbegin, send, desc.nbits);
+			bitpck::encode(dst, src, send, desc.nbits);
+			break;
 		case encoding_t::bitfor:
 			typename bitfor::parameters params(desc.origin, desc.nbits);
-			return bitfor::encode(dbegin, dend, sbegin, send, params);
+			bitfor::encode(dst, src, send, params);
+			break;
 		}
-		return false;
 	}
 
 	template<typename integer_t, typename DstIter, typename SrcIter>
-	static bool
-	decode_basic(DstIter &dbegin, DstIter const dend,
-		     SrcIter &sbegin, SrcIter const send,
+	static void
+	decode_basic(DstIter &dst, DstIter const dend, SrcIter &src,
 		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:
-			return naught::decode(dbegin, dend, sbegin, send, desc.origin);
+			naught::decode(dst, dend, src, desc.origin);
+			break;
 		case encoding_t::normal:
-			return normal::decode(dbegin, dend, sbegin, send);
+			normal::decode(dst, dend, src);
+			break;
 		case encoding_t::varint:
-			return varint::decode(dbegin, sbegin, send);
+			varint::decode(dst, dend, src);
+			break;
 		case encoding_t::varfor:
-			return varfor::decode(dbegin, sbegin, send,
-					      origin(desc.origin));
+			varfor::decode(dst, dend, src, origin(desc.origin));
+			break;
 		case encoding_t::bitpck:
-			return bitpck::decode(dbegin, dend, sbegin, send, desc.nbits);
+			bitpck::decode(dst, dend, src, desc.nbits);
+			break;
 		case encoding_t::bitfor:
 			typename bitfor::parameters params(desc.origin, desc.nbits);
-			return bitfor::decode(dbegin, dend, sbegin, send, params);
+			bitfor::decode(dst, dend, src, params);
+			break;
 		}
-		return false;
 	}
 };
 

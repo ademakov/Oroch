@@ -33,25 +33,19 @@ public:
 	using original_t = T;
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	encode(DstIter &, DstIter, SrcIter &sbegin, SrcIter send)
+	static void
+	encode(DstIter &, SrcIter &sbegin, SrcIter send)
 	{
 		sbegin = send;
-		return true;
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dbegin, DstIter dend, SrcIter &, SrcIter,
+	static void
+	decode(DstIter &dst, DstIter dend, SrcIter &,
 	       original_t value = 0)
 	{
-		DstIter dst = dbegin;
-
 		while (dst < dend)
 			*dst++ = value;
-
-		dbegin = dst;
-		return true;
 	}
 };
 

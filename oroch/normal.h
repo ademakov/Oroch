@@ -41,49 +41,25 @@ public:
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send)
+	static void
+	encode(DstIter &dst, SrcIter &src, SrcIter send)
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
 		while (src < send) {
-			if (dst + sizeof(original_t) > dend) {
-				rc = false;
-				break;
-			}
 			auto addr = std::addressof(*dst);
 			*reinterpret_cast<original_t *>(addr) = *src++;
 			dst += sizeof(original_t);
 		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send)
+	static void
+	decode(DstIter &dst, DstIter dend, SrcIter &src)
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
 		while (dst < dend) {
-			if (src + sizeof(original_t) > send) {
-				rc = false;
-				break;
-			}
 			auto addr = std::addressof(*src);
 			*dst++ = *reinterpret_cast<const original_t *>(addr);
 			src += sizeof(original_t);
 		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
 	}
 };
 

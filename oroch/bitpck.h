@@ -43,54 +43,27 @@ public:
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
-	static bool
-	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
+	static void
+	encode(DstIter &dst, SrcIter &src, SrcIter send,
 	       size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
-		while (src < send) {
-			if (!block_codec::encode(dst, dend, src, send,
-						 nbits, value_codec)) {
-				rc = false;
-				break;
-			}
-		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
+		while (src < send)
+			block_codec::encode(dst, src, send, nbits, value_codec);
 	}
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
-	static bool
-	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
+	static void
+	decode(DstIter &dst, DstIter dend, SrcIter &src,
 	       size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
-		bool rc = true;
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
-		size_t ndst = std::distance(dst, dend);
-		size_t nsrc = std::distance(src, send);
-		size_t ndst_full = ndst / block_codec::capacity(nbits);
-		size_t nsrc_full = nsrc / block_codec::block_size;
-		size_t n = std::min(ndst_full, nsrc_full);
-		while (n--)
+		size_t n = std::distance(dst, dend);
+		size_t c = block_codec::capacity(nbits);
+		size_t d = n / c, r = n % c;
+		while (d--)
 			block_codec::decode(dst, src, nbits, value_codec);
-
-		if (dst != dend && src != send) {
-			if (!block_codec::decode(dst, dend, src, send,
-						 nbits, value_codec))
-				rc = false;
-		}
-
-		dbegin = dst;
-		sbegin = src;
-		return rc;
+		if (r)
+			block_codec::decode(dst, dend, src, nbits, value_codec);
 	}
 
 	template<typename SrcIter,

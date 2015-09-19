@@ -67,7 +67,7 @@ TEST_CASE("varint codec for array", "[varint]") {
 	std::array<uint32_t, 5> integers2;
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	varint32::decode(i_it, b_it, bytes.end());
+	varint32::decode(i_it, integers2.end(), b_it);
 
 	for (size_t i = 0; i < integers.size(); i++) {
 		REQUIRE(integers[i] == integers2[i]);

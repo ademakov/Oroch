@@ -116,23 +116,21 @@ public:
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
+	static void
 	encode(DstIter &dst, SrcIter &src, SrcIter const send,
 	       value_codec vcodec = value_codec())
 	{
 		while (src != send)
 			encode(dst, *src++, vcodec);
-		return true;
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dst, SrcIter &src, SrcIter const send,
+	static void
+	decode(DstIter &dst, DstIter const dend, SrcIter &src,
 	       value_codec vcodec = value_codec())
 	{
-		while (src != send)
+		while (dst != dend)
 			decode(*dst++, src, vcodec);
-		return true;
 	}
 };
 

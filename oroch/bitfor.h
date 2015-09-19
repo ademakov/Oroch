@@ -57,28 +57,23 @@ public:
 	};
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	encode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
-	       const parameters &params)
+	static void
+	encode(DstIter &dst, SrcIter &src, SrcIter send, const parameters &params)
 	{
-		return basic_codec::encode(dbegin, dend, sbegin, send,
-					   params.nbits, params);
+		basic_codec::encode(dst, src, send, params.nbits, params);
 	}
 
 	template<typename DstIter, typename SrcIter>
-	static bool
-	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, SrcIter send,
-	       const parameters &params)
+	static void
+	decode(DstIter &dst, DstIter dend, SrcIter &src, const parameters &params)
 	{
-		return basic_codec::decode(dbegin, dend, sbegin, send,
-					   params.nbits, params);
+		basic_codec::decode(dst, dend, src, params.nbits, params);
 	}
 
 	template<typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static original_t
-	fetch(SrcIter src, const size_t index,
-	      const parameters &params)
+	fetch(SrcIter src, const size_t index, const parameters &params)
 	{
 		return basic_codec::fetch(src, index, params.nbits, params);
 	}

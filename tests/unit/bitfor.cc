@@ -21,11 +21,11 @@ TEST_CASE("bitfor codec for unsigned values", "[bitfor]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), params));
+	codec::encode(b_it, i_it, integers.end(), params);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), params));
+	codec::decode(i_it, integers2.end(), b_it, params);
 
 	for (int i = 0; i < INTS; i++) {
 		REQUIRE(integers2[i] == integers[i]);
@@ -45,11 +45,11 @@ TEST_CASE("bitfor codec for signed values", "[bitfor]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), params));
+	codec::encode(b_it, i_it, integers.end(), params);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), params));
+	codec::decode(i_it, integers2.end(), b_it, params);
 
 	for (int i = 0; i < INTS; i++) {
 		REQUIRE(integers2[i] == integers[i]);
@@ -67,7 +67,7 @@ TEST_CASE("bitfor codec fetch", "[bitfor]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), params));
+	codec::encode(b_it, i_it, integers.end(), params);
 
 	b_it = bytes.begin();
 	for (int i = 0; i < INTS; i++)

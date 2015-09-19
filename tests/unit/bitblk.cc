@@ -17,44 +17,44 @@ TEST_CASE("bitblk codec for small values", "[bitblk]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 4));
+	codec::encode(b_it, i_it, integers.end(), 4);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 4));
+	codec::decode(i_it, integers2.end(), b_it, 4);
 	for (int i = 0; i < 10; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 15));
 	}
 
 	b_it = bytes.begin();
 	i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 3));
+	codec::encode(b_it, i_it, integers.end(), 3);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 3));
+	codec::decode(i_it, integers2.end(), b_it, 3);
 	for (int i = 0; i < 10; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 7));
 	}
 
 	b_it = bytes.begin();
 	i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 2));
+	codec::encode(b_it, i_it, integers.end(), 2);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 2));
+	codec::decode(i_it, integers2.end(), b_it, 2);
 	for (int i = 0; i < 10; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 3));
 	}
 
 	b_it = bytes.begin();
 	i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 1));
+	codec::encode(b_it, i_it, integers.end(), 1);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 1));
+	codec::decode(i_it, integers2.end(), b_it, 1);
 	for (int i = 0; i < 10; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 1));
 	}
@@ -71,44 +71,44 @@ TEST_CASE("bitblk codec for large values", "[bitblk]") {
 
 	auto b_it = bytes.begin();
 	auto i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 32));
+	codec::encode(b_it, i_it, integers.end(), 32);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 32));
+	codec::decode(i_it, integers2.end(), b_it, 32);
 	for (int i = 0; i < 4; i++) {
 		REQUIRE(integers2[i] == (integers[i]));
 	}
 
 	b_it = bytes.begin();
 	i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 31));
+	codec::encode(b_it, i_it, integers.end(), 31);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 31));
+	codec::decode(i_it, integers2.end(), b_it, 31);
 	for (int i = 0; i < 4; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 0x7fffffff));
 	}
 
 	b_it = bytes.begin();
 	i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 30));
+	codec::encode(b_it, i_it, integers.end(), 30);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 30));
+	codec::decode(i_it, integers2.end(), b_it, 30);
 	for (int i = 0; i < 4; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 0x3fffffff));
 	}
 
 	b_it = bytes.begin();
 	i_it = integers.begin();
-	REQUIRE(codec::encode(b_it, bytes.end(), i_it, integers.end(), 29));
+	codec::encode(b_it, i_it, integers.end(), 29);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
-	REQUIRE(codec::decode(i_it, integers2.end(), b_it, bytes.end(), 29));
+	codec::decode(i_it, integers2.end(), b_it, 29);
 	for (int i = 0; i < 4; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 0x1fffffff));
 	}
@@ -127,7 +127,7 @@ TEST_CASE("bitblk codec fetch", "[bitblk]") {
 
 		auto b_it = bytes.begin();
 		auto i_it = integers.begin();
-		REQUIRE(codec::encode(b_it, bytes.end(), i_it, i_it + nints, nbits));
+		codec::encode(b_it, i_it, i_it + nints, nbits);
 
 		for (int i = 0; i < nints; i++) {
 			INFO("nbits: " << nbits << ", index: " << i);
