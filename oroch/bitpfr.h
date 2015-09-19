@@ -90,22 +90,22 @@ public:
 
 	template<typename DstIter, typename SrcIter>
 	static void
-	encode(DstIter &dbegin, SrcIter &sbegin, SrcIter send, parameters &params)
+	encode(DstIter &dst, SrcIter &src, SrcIter send, parameters &params)
 	{
-		basic_codec::encode(dbegin, sbegin, send, params.nbits, params);
+		basic_codec::encode(dst, src, send, params.nbits, params);
 	}
 
 	template<typename DstIter, typename SrcIter>
 	static void
-	decode(DstIter &dbegin, DstIter dend, SrcIter &sbegin, const parameters &params)
+	decode(DstIter &dst, DstIter dend, SrcIter &src, const parameters &params)
 	{
-		DstIter darray = dbegin;
-		basic_codec::decode(dbegin, dend, sbegin, params.nbits, params);
+		DstIter arr = dst;
+		basic_codec::decode(dst, dend, src, params.nbits, params);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
-			size_t index = params.excpts.indices[i];
-			unsigned_t value = params.basic_value_encode(darray[index]);
+			size_t idx = params.excpts.indices[i];
+			unsigned_t value = params.basic_value_encode(arr[idx]);
 			value |= params.excpts.values[i] << params.nbits;
-			darray[index] = params.value_decode(value);
+			arr[idx] = params.value_decode(value);
 		}
 	}
 };
