@@ -75,14 +75,11 @@ public:
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static void
-	block_encode(DstIter &dbegin, SrcIter &sbegin, SrcIter const send,
+	block_encode(DstIter &dst, SrcIter &src, SrcIter const send,
 		     const size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
 		const size_t c = capacity(nbits);
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
-
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
 
 		uint64_t u = 0;
 		uint64_t v = 0;
@@ -129,24 +126,20 @@ public:
 		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
 		block[0] = u;
 		block[1] = v;
-
-		dbegin += block_size;
-		sbegin = src;
+		dst += block_size;
 	}
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static void
-	block_decode(DstIter &dbegin, DstIter const dend, SrcIter &sbegin,
+	block_decode(DstIter &dst, DstIter const dend, SrcIter &src,
 		     const size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
 		auto addr = std::addressof(*src);
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
 		uint64_t u = block[0];
 		uint64_t v = block[1];
+		src += block_size;
 
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
 
@@ -175,24 +168,19 @@ public:
 			*dst++ = value_codec.value_decode(v & mask);
 			v >>= nbits;
 		}
-
-		sbegin += block_size;
-		dbegin = dst;
 	}
 
 	template<typename DstIter, typename SrcIter,
 		 typename ValueCodec = zigzag_codec<original_t>>
 	static void
-	block_decode(DstIter &dbegin, SrcIter &sbegin,
+	block_decode(DstIter &dst, SrcIter &src,
 		     const size_t nbits, ValueCodec value_codec = ValueCodec())
 	{
-		DstIter dst = dbegin;
-		SrcIter src = sbegin;
-
 		auto addr = std::addressof(*src);
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
 		uint64_t u = block[0];
 		uint64_t v = block[1];
+		src += block_size;
 
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
 
@@ -215,9 +203,6 @@ public:
 			*dst++ = value_codec.value_decode(v & mask);
 			v >>= nbits;
 		}
-
-		sbegin += block_size;
-		dbegin = dst;
 	}
 
 	template<typename SrcIter,
