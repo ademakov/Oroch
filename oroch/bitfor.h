@@ -44,7 +44,6 @@ public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 	using basic_codec = bitpck_codec<original_t>;
-	using block_codec = typename basic_codec::block_codec;
 
 	struct parameters : public origin_codec<original_t>
 	{

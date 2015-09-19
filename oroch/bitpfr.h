@@ -38,7 +38,6 @@ public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 	using basic_codec = bitpck_codec<T>;
-	using block_codec = typename basic_codec::block_codec;
 
 	struct exceptions
 	{

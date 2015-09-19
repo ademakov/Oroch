@@ -10,7 +10,7 @@
 
 TEST_CASE("bitfor codec for unsigned values", "[bitfor]") {
 	using codec = oroch::bitfor_codec<uint32_t>;
-	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
 	std::array<uint32_t, INTS> integers2;
 	codec::parameters params(FREF, BITS);
@@ -34,7 +34,7 @@ TEST_CASE("bitfor codec for unsigned values", "[bitfor]") {
 
 TEST_CASE("bitfor codec for signed values", "[bitfor]") {
 	using codec = oroch::bitfor_codec<int32_t>;
-	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<int32_t, INTS> integers;
 	std::array<int32_t, INTS> integers2;
 	codec::parameters params(-FREF, BITS);
@@ -58,7 +58,7 @@ TEST_CASE("bitfor codec for signed values", "[bitfor]") {
 
 TEST_CASE("bitfor codec fetch", "[bitfor]") {
 	using codec = oroch::bitfor_codec<uint64_t>;
-	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
 	codec::parameters params(FREF, BITS);
 

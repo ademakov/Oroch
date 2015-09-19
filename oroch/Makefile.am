@@ -1,6 +1,5 @@
 
 include_HEADERS = \
-    bitblk.h \
     bitfor.h \
     bitpck.h \
     bitpfr.h \

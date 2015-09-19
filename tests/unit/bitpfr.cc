@@ -30,7 +30,7 @@ TEST_CASE("bitpfr value codec", "[bitpfr]") {
 
 TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]") {
 	using codec = oroch::bitpfr_codec<uint32_t>;
-	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
 	std::array<uint32_t, INTS> integers2;
 	codec::exceptions excpts;
@@ -60,7 +60,7 @@ TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]") {
 
 TEST_CASE("bitpfr codec for signed values", "[bitpfr]") {
 	using codec = oroch::bitpfr_codec<int32_t>;
-	std::array<uint8_t, codec::block_codec::space(INTS, BITS)> bytes;
+	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<int32_t, INTS> integers;
 	std::array<int32_t, INTS> integers2;
 	codec::exceptions excpts;

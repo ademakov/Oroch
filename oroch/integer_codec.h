@@ -373,7 +373,7 @@ private:
 		nbits = integer_traits<unsigned_t>::usedcount(umax);
 
 		// Account for the memory required to encode all data values.
-		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
+		dataspace = bitpck::space(stat.nvalues(), nbits);
 
 		// Finally try it.
 		compare(desc, encoding_t::bitpck, 1, dataspace,
@@ -391,7 +391,7 @@ private:
 		nbits = integer_traits<unsigned_t>::usedcount(range);
 
 		// Account for the memory required to encode all data values.
-		dataspace = bitpck::block_codec::space(stat.nvalues(), nbits);
+		dataspace = bitpck::space(stat.nvalues(), nbits);
 		// The memory required to store the nbits and origin values.
 		metaspace = 1 + varint::value_space(stat.min());
 
