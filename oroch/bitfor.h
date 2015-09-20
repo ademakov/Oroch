@@ -43,7 +43,6 @@ class bitfor_codec
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using basic_codec = bitpck_codec<original_t>;
 
 	struct parameters : public origin_codec<original_t>
 	{
@@ -54,6 +53,8 @@ public:
 
 		const size_t nbits;
 	};
+
+	using basic_codec = bitpck_codec<original_t, parameters>;
 
 	template<typename DstIter, typename SrcIter>
 	static void
@@ -69,8 +70,7 @@ public:
 		basic_codec::decode(dst, dend, src, params.nbits, params);
 	}
 
-	template<typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename SrcIter>
 	static original_t
 	fetch(SrcIter src, const size_t index, const parameters &params)
 	{

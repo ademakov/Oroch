@@ -37,7 +37,6 @@ class bitpfr_codec
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using basic_codec = bitpck_codec<T>;
 
 	struct exceptions
 	{
@@ -86,6 +85,8 @@ public:
 		const unsigned_t mask;
 		exceptions &excpts;
 	};
+
+	using basic_codec = bitpck_codec<original_t, parameters>;
 
 	template<typename DstIter, typename SrcIter>
 	static void

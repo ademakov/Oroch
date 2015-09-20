@@ -224,14 +224,14 @@ public:
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 	using metadata = encoding_metadata<original_t>;
 
+	using origin = origin_codec<original_t>;
+	using zigzag = zigzag_codec<original_t>;
 	using bitpck = bitpck_codec<original_t>;
 	using bitfor = bitfor_codec<original_t>;
 	using naught = naught_codec<original_t>;
 	using normal = normal_codec<original_t>;
-	using varint = varint_codec<original_t, zigzag_codec>;
-	using varfor = varint_codec<original_t, origin_codec>;
-	using origin = origin_codec<original_t>;
-	using zigzag = zigzag_codec<original_t>;
+	using varint = varint_codec<original_t, zigzag>;
+	using varfor = varint_codec<original_t, origin>;
 
 	template<typename SrcIter>
 	static void

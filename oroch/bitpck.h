@@ -39,11 +39,12 @@ namespace oroch {
 // By default the codec applies zigzag encoding if used on signed types.
 // This can be replaced by supplying a different value code explicitly.
 //
-template<typename T>
+template<typename T, typename V = zigzag_codec<T>>
 class bitpck_codec
 {
 public:
 	using original_t = T;
+	using value_codec = V;
 
 	static constexpr size_t block_size = 16;
 	static constexpr size_t block_nbits = block_size * 8;
@@ -72,11 +73,10 @@ public:
 		return block_size * block_number(nvalues, nbits);
 	}
 
-	template<typename DstIter, typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename DstIter, typename SrcIter>
 	static void
 	block_encode(DstIter &dst, SrcIter &src, SrcIter const send,
-		     const size_t nbits, ValueCodec value_codec = ValueCodec())
+		     const size_t nbits, value_codec vcodec = value_codec())
 	{
 		const size_t c = capacity(nbits);
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
@@ -91,7 +91,7 @@ public:
 			if (src == send)
 				goto done;
 
-			uint64_t value = value_codec.value_encode(*src++);
+			uint64_t value = vcodec.value_encode(*src++);
 			u |= (value & mask) << shift;
 			shift += nbits;
 		}
@@ -106,7 +106,7 @@ public:
 			size_t mask1 = (1ul << nbits1) - 1;
 			size_t mask2 = (1ul << nbits2) - 1;
 
-			uint64_t value = value_codec.value_encode(*src++);
+			uint64_t value = vcodec.value_encode(*src++);
 			u |= (value & mask1) << shift;
 			v |= (value >> nbits1) & mask2;
 			shift = nbits2;
@@ -116,7 +116,7 @@ public:
 			if (src == send)
 				goto done;
 
-			uint64_t value = value_codec.value_encode(*src++);
+			uint64_t value = vcodec.value_encode(*src++);
 			v |= (value & mask) << shift;
 			shift += nbits;
 		}
@@ -129,11 +129,10 @@ public:
 		dst += block_size;
 	}
 
-	template<typename DstIter, typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename DstIter, typename SrcIter>
 	static void
 	block_decode(DstIter &dst, DstIter const dend, SrcIter &src,
-		     const size_t nbits, ValueCodec value_codec = ValueCodec())
+		     const size_t nbits, value_codec vcodec = value_codec())
 	{
 		auto addr = std::addressof(*src);
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
@@ -154,27 +153,26 @@ public:
 		}
 		size_t n = c - m;
 		while (m--) {
-			*dst++ = value_codec.value_decode(u & mask);
+			*dst++ = vcodec.value_decode(u & mask);
 			u >>= nbits;
 		}
 		if (n && mbits != 64) {
 			size_t r = 64 - mbits;
 			uint64_t x = u | (v << r);
-			*dst++ = value_codec.value_decode(x & mask);
+			*dst++ = vcodec.value_decode(x & mask);
 			v >>= nbits - r;
 			n--;
 		}
 		while (n--) {
-			*dst++ = value_codec.value_decode(v & mask);
+			*dst++ = vcodec.value_decode(v & mask);
 			v >>= nbits;
 		}
 	}
 
-	template<typename DstIter, typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename DstIter, typename SrcIter>
 	static void
-	block_decode(DstIter &dst, SrcIter &src,
-		     const size_t nbits, ValueCodec value_codec = ValueCodec())
+	block_decode(DstIter &dst, SrcIter &src, const size_t nbits,
+		     value_codec vcodec = value_codec())
 	{
 		auto addr = std::addressof(*src);
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
@@ -189,27 +187,26 @@ public:
 		size_t n = c - m;
 		size_t mbits = m * nbits;
 		while (m--) {
-			*dst++ = value_codec.value_decode(u & mask);
+			*dst++ = vcodec.value_decode(u & mask);
 			u >>= nbits;
 		}
 		if (mbits != 64) {
 			size_t r = 64 - mbits;
 			uint64_t x = u | (v << r);
-			*dst++ = value_codec.value_decode(x & mask);
+			*dst++ = vcodec.value_decode(x & mask);
 			v >>= nbits - r;
 			n--;
 		}
 		while (n--) {
-			*dst++ = value_codec.value_decode(v & mask);
+			*dst++ = vcodec.value_decode(v & mask);
 			v >>= nbits;
 		}
 	}
 
-	template<typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename SrcIter>
 	static original_t
 	block_fetch(SrcIter src, const size_t index, const size_t nbits,
-		    ValueCodec value_codec = ValueCodec())
+		    value_codec vcodec = value_codec())
 	{
 		auto addr = std::addressof(*src);
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
@@ -228,43 +225,40 @@ public:
 		}
 
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
-		return value_codec.value_decode(x & mask);
+		return vcodec.value_decode(x & mask);
 	}
 
-	template<typename DstIter, typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename DstIter, typename SrcIter>
 	static void
 	encode(DstIter &dst, SrcIter &src, SrcIter send,
-	       size_t nbits, ValueCodec value_codec = ValueCodec())
+	       size_t nbits, value_codec vcodec = value_codec())
 	{
 		while (src < send)
-			block_encode(dst, src, send, nbits, value_codec);
+			block_encode(dst, src, send, nbits, vcodec);
 	}
 
-	template<typename DstIter, typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename DstIter, typename SrcIter>
 	static void
 	decode(DstIter &dst, DstIter dend, SrcIter &src,
-	       size_t nbits, ValueCodec value_codec = ValueCodec())
+	       size_t nbits, value_codec vcodec = value_codec())
 	{
 		size_t n = std::distance(dst, dend);
 		size_t c = capacity(nbits);
 		size_t d = n / c, r = n % c;
 		while (d--)
-			block_decode(dst, src, nbits, value_codec);
+			block_decode(dst, src, nbits, vcodec);
 		if (r)
-			block_decode(dst, dend, src, nbits, value_codec);
+			block_decode(dst, dend, src, nbits, vcodec);
 	}
 
-	template<typename SrcIter,
-		 typename ValueCodec = zigzag_codec<original_t>>
+	template<typename SrcIter>
 	static original_t
 	fetch(SrcIter src, const size_t index, const size_t nbits,
-	      ValueCodec value_codec = ValueCodec())
+	      value_codec vcodec = value_codec())
 	{
 		size_t c = capacity(nbits);
 		src += (index / c) * block_size;
-		return block_fetch(src, index % c, nbits, value_codec);
+		return block_fetch(src, index % c, nbits, vcodec);
 	}
 };
 

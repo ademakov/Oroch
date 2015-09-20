@@ -43,13 +43,13 @@ namespace oroch {
 //
 // The codec automatically applies zigzag encoding if used on signed types.
 //
-template <typename T, template<typename> class V = zigzag_codec>
+template <typename T, typename V = zigzag_codec<T>>
 class varint_codec
 {
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-	using value_codec = V<original_t>;
+	using value_codec = V;
 
 	// The maximum number of bytes needed to encode an integer.
 	static constexpr size_t nbytemax = (integer_traits<original_t>::nbits + 6) / 7;
