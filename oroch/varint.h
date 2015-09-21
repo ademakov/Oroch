@@ -56,8 +56,7 @@ public:
 
 	// Get the number of bytes needed to encode a given integer value.
 	static size_t
-	value_space(original_t src,
-		    value_codec vcodec = value_codec())
+	value_space(original_t src, value_codec vcodec = value_codec())
 	{
 		size_t count = 1;
 		unsigned_t value = vcodec.value_encode(src);
@@ -68,22 +67,9 @@ public:
 		return count;
 	}
 
-	// Get the number of bytes needed to encode a given integer sequence.
-	template<typename SrcIter>
-	static size_t
-	space(SrcIter const src, SrcIter const send,
-	      value_codec vcodec = value_codec())
-	{
-		size_t count = 0;
-		while (src != send)
-			count += value_space(*src++, vcodec);
-		return count;
-	}
-
 	template<typename DstIter>
 	static void
-	encode(DstIter &dst, original_t src,
-	       value_codec vcodec = value_codec())
+	value_encode(DstIter &dst, original_t src, value_codec vcodec = value_codec())
 	{
 		unsigned_t value = vcodec.value_encode(src);
 		while (value >= 0x80) {
@@ -95,8 +81,7 @@ public:
 
 	template<typename SrcIter>
 	static void
-	decode(original_t &dst, SrcIter &src,
-	       value_codec vcodec = value_codec())
+	value_decode(original_t &dst, SrcIter &src, value_codec vcodec = value_codec())
 	{
 		unsigned_t value = uint8_t(*src++);
 		if (int8_t(value) < 0) {
@@ -115,13 +100,25 @@ public:
 		dst = vcodec.value_decode(value);
 	}
 
+	// Get the number of bytes needed to encode a given integer sequence.
+	template<typename SrcIter>
+	static size_t
+	space(SrcIter const src, SrcIter const send,
+	      value_codec vcodec = value_codec())
+	{
+		size_t count = 0;
+		while (src != send)
+			count += value_space(*src++, vcodec);
+		return count;
+	}
+
 	template<typename DstIter, typename SrcIter>
 	static void
 	encode(DstIter &dst, SrcIter &src, SrcIter const send,
 	       value_codec vcodec = value_codec())
 	{
 		while (src != send)
-			encode(dst, *src++, vcodec);
+			value_encode(dst, *src++, vcodec);
 	}
 
 	template<typename DstIter, typename SrcIter>
@@ -130,7 +127,7 @@ public:
 	       value_codec vcodec = value_codec())
 	{
 		while (dst != dend)
-			decode(*dst++, src, vcodec);
+			value_decode(*dst++, src, vcodec);
 	}
 };
 

@@ -177,13 +177,13 @@ struct encoding_metadata
 		switch (encoding) {
 		case encoding_t::naught:
 		case encoding_t::varfor:
-			varint::encode(dst, value_desc.origin);
+			varint::value_encode(dst, value_desc.origin);
 			break;
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
 		case encoding_t::bitfor:
-			varint::encode(dst, value_desc.origin);
+			varint::value_encode(dst, value_desc.origin);
 			// no break at the end of case
 		case encoding_t::bitpck:
 			*dst++ = value_desc.nbits;
@@ -201,13 +201,13 @@ struct encoding_metadata
 		switch (encoding) {
 		case encoding_t::naught:
 		case encoding_t::varfor:
-			varint::decode(value_desc.origin, src);
+			varint::value_decode(value_desc.origin, src);
 			break;
 		case encoding_t::normal:
 		case encoding_t::varint:
 			break;
 		case encoding_t::bitfor:
-			varint::decode(value_desc.origin, src);
+			varint::value_decode(value_desc.origin, src);
 			// no break at the end of case
 		case encoding_t::bitpck:
 			value_desc.nbits = *src++;
