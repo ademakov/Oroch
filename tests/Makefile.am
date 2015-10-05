@@ -1,2 +1,2 @@
 
-SUBDIRS = unit
+SUBDIRS = bench unit

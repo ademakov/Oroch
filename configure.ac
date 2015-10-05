@@ -40,5 +40,6 @@ AC_CONFIG_FILES([
 	Makefile
 	oroch/Makefile
 	tests/Makefile
+	tests/bench/Makefile
 	tests/unit/Makefile])
 AC_OUTPUT
