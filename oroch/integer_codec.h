@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <limits>
+#include <ostream>
 #include <vector>
 
 #include <oroch/integer_traits.h>
@@ -215,6 +216,15 @@ struct encoding_metadata
 		}
 	}
 };
+
+template<typename CharT, typename Traits, typename T>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits> &os, const encoding_metadata<T> &meta)
+{
+	os << "encoding: " << static_cast<int>(meta.value_desc.encoding)
+	   << ", origin: " << meta.value_desc.origin
+	   << ", nbits: " << meta.value_desc.nbits;
+}
 
 template <typename T>
 class integer_codec
