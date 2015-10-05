@@ -27,6 +27,7 @@ Makefile.in
 *.lo
 *.o
 *.obj
+*.dSYM
 
 # Precompiled Headers
 *.gch
