@@ -224,6 +224,7 @@ operator<<(std::basic_ostream<CharT, Traits> &os, const encoding_metadata<T> &me
 	os << "encoding: " << static_cast<int>(meta.value_desc.encoding)
 	   << ", origin: " << meta.value_desc.origin
 	   << ", nbits: " << meta.value_desc.nbits;
+	return os;
 }
 
 template <typename T>
