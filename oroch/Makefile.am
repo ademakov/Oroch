@@ -5,6 +5,7 @@ include_HEADERS = \
     bitpfr.h \
     config.h \
     integer_codec.h \
+    integer_group.h \
     integer_traits.h \
     naught.h \
     normal.h \

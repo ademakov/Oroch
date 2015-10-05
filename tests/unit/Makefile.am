@@ -14,4 +14,5 @@ unit_tests_SOURCES = \
     normal.cc \
     varint.cc \
     zigzag.cc \
-    integer_codec.cc
+    integer_codec.cc \
+    integer_group.cc
