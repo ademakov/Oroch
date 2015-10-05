@@ -71,6 +71,13 @@ public:
 		codec::decode(begin, end, data_it, meta);
 	}
 
+	void
+	decode(typename codec::metadata& meta) const
+	{
+		auto meta_it = data_.get();
+		meta.decode(meta_it);
+	}
+
 protected:
 	std::unique_ptr<uint8_t[]> data_;
 };
