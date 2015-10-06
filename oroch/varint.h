@@ -25,8 +25,8 @@
 #define OROCH_VARINT_H_
 
 #include <cstddef>
-#include <cstdint>
 
+#include <oroch/common.h>
 #include <oroch/integer_traits.h>
 #include <oroch/zigzag.h>
 
@@ -73,23 +73,23 @@ public:
 	{
 		unsigned_t value = vcodec.value_encode(src);
 		while (value >= 0x80) {
-			*dst++ = uint8_t(value | 0x80);
+			*dst++ = byte_t(value | 0x80);
 			value >>= 7;
 		}
-		*dst++ = uint8_t(value);
+		*dst++ = byte_t(value);
 	}
 
 	template<typename SrcIter>
 	static void
 	value_decode(original_t &dst, SrcIter &src, value_codec vcodec = value_codec())
 	{
-		unsigned_t value = uint8_t(*src++);
-		if (int8_t(value) < 0) {
+		unsigned_t value = byte_t(*src++);
+		if (signed_byte_t(value) < 0) {
 			value &= 0x7f;
 			int shift = 7;
 			for (;;) {
-				uint8_t byte = *src++;
-				if (int8_t(byte) > 0) {
+				byte_t byte = *src++;
+				if (signed_byte_t(byte) > 0) {
 					value |= unsigned_t(byte) << shift;
 					break;
 				}

@@ -29,6 +29,7 @@
 #include <ostream>
 #include <vector>
 
+#include <oroch/common.h>
 #include <oroch/integer_traits.h>
 #include <oroch/bitpck.h>
 #include <oroch/bitfor.h>
@@ -40,7 +41,7 @@
 
 namespace oroch {
 
-enum encoding_t : uint8_t {
+enum encoding_t : byte_t {
 	naught = 0,
 	normal = 1,
 	varint = 2,

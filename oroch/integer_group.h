@@ -24,6 +24,7 @@
 #ifndef OROCH_INTEGER_GROUP_H_
 #define OROCH_INTEGER_GROUP_H_
 
+#include <oroch/common.h>
 #include <oroch/integer_codec.h>
 
 namespace oroch {
@@ -48,7 +49,7 @@ public:
 		const size_t metaspace = meta.metaspace();
 		const size_t dataoffset = (metaspace + alignment_mask) & ~alignment_mask;
 
-		data_.reset(new uint8_t[dataoffset + meta.dataspace()]);
+		data_.reset(new byte_t[dataoffset + meta.dataspace()]);
 		auto meta_it = data_.get();
 		meta.encode(meta_it);
 
@@ -79,7 +80,7 @@ public:
 	}
 
 protected:
-	std::unique_ptr<uint8_t[]> data_;
+	std::unique_ptr<byte_t[]> data_;
 };
 
 } // namespace oroch
