@@ -24,6 +24,8 @@
 #ifndef OROCH_INTEGER_GROUP_H_
 #define OROCH_INTEGER_GROUP_H_
 
+#include <memory>
+
 #include <oroch/common.h>
 #include <oroch/integer_codec.h>
 
@@ -50,11 +52,11 @@ public:
 		const size_t dataoffset = (metaspace + alignment_mask) & ~alignment_mask;
 
 		data_.reset(new byte_t[dataoffset + meta.dataspace()]);
-		auto meta_it = data_.get();
-		meta.encode(meta_it);
+		dst_bytes_t meta_bytes = data_.get();
+		meta.encode(meta_bytes);
 
-		auto data_it = data_.get() + dataoffset;
-		codec::encode(data_it, begin, end, meta);
+		dst_bytes_t data_bytes = data_.get() + dataoffset;
+		codec::encode(data_bytes, begin, end, meta);
 	}
 
 	template<typename Iter>
@@ -62,21 +64,22 @@ public:
 	decode(Iter begin, Iter const end) const
 	{
 		typename codec::metadata meta;
-		auto meta_it = data_.get();
-		meta.decode(meta_it);
+		src_bytes_t meta_bytes = data_.get();
+		src_bytes_t meta_start = meta_bytes;
+		meta.decode(meta_bytes);
 
-		const size_t metaspace = std::distance(data_.get(), meta_it);
+		const size_t metaspace = std::distance(meta_start, meta_bytes);
 		const size_t dataoffset = (metaspace + alignment_mask) & ~alignment_mask;
 
-		auto data_it = data_.get() + dataoffset;
-		codec::decode(begin, end, data_it, meta);
+		src_bytes_t data_bytes = data_.get() + dataoffset;
+		codec::decode(begin, end, data_bytes, meta);
 	}
 
 	void
 	decode(typename codec::metadata& meta) const
 	{
-		auto meta_it = data_.get();
-		meta.decode(meta_it);
+		src_bytes_t meta_bytes = data_.get();
+		meta.decode(meta_bytes);
 	}
 
 protected:

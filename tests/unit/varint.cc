@@ -32,24 +32,22 @@ TEST_CASE("varint codec for single value", "[varint]") {
 	REQUIRE(bytes[1] == 1);
 
 	for (uint32_t i = 1; i != 0; i += i) {
-		it = bytes.begin();
-		varint32::value_encode(it, i);
+		oroch::dst_bytes_t d_it = bytes.begin();
+		varint32::value_encode(d_it, i);
 
 		uint32_t j;
-		auto it_end = it;
-		it = bytes.begin();
-		varint32::value_decode(j, it);
+		oroch::src_bytes_t b_it = bytes.begin();
+		varint32::value_decode(j, b_it);
 		REQUIRE(i == j);
 	}
 
 	for (uint64_t i = 1; i != 0; i += i) {
-		it = bytes.begin();
-		varint64::value_encode(it, i);
+		oroch::dst_bytes_t d_it = bytes.begin();
+		varint64::value_encode(d_it, i);
 
 		uint64_t j;
-		auto it_end = it;
-		it = bytes.begin();
-		varint64::value_decode(j, it);
+		oroch::src_bytes_t b_it = bytes.begin();
+		varint64::value_decode(j, b_it);
 		REQUIRE(i == j);
 	}
 }
@@ -60,12 +58,12 @@ TEST_CASE("varint codec for array", "[varint]") {
 		0, 0x80, 0x4000, 0x200000, 0x1000000
 	}};
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	varint32::encode(b_it, i_it, integers.end());
+	varint32::encode(d_it, i_it, integers.end());
 
 	std::array<uint32_t, 5> integers2;
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	varint32::decode(i_it, integers2.end(), b_it);
 

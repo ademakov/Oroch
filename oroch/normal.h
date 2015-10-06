@@ -24,7 +24,7 @@
 #ifndef OROCH_NORMAL_H_
 #define OROCH_NORMAL_H_
 
-#include <memory>
+#include <oroch/common.h>
 
 namespace oroch {
 
@@ -40,24 +40,22 @@ public:
 		return nvalues * sizeof(original_t);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	encode(DstIter &dst, SrcIter &src, SrcIter send)
+	encode(dst_bytes_t &dst, Iter &src, Iter send)
 	{
 		while (src < send) {
-			auto addr = std::addressof(*dst);
-			*reinterpret_cast<original_t *>(addr) = *src++;
+			*reinterpret_cast<original_t *>(dst) = *src++;
 			dst += sizeof(original_t);
 		}
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	decode(DstIter &dst, DstIter dend, SrcIter &src)
+	decode(Iter &dst, Iter dend, src_bytes_t &src)
 	{
 		while (dst < dend) {
-			auto addr = std::addressof(*src);
-			*dst++ = *reinterpret_cast<const original_t *>(addr);
+			*dst++ = *reinterpret_cast<const original_t *>(src);
 			src += sizeof(original_t);
 		}
 	}

@@ -15,20 +15,20 @@ TEST_CASE("bitblk codec for small values", "[bitblk]") {
 	}};
 	std::array<uint32_t, 10> integers2;
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 4);
+	codec::block_encode(d_it, i_it, integers.end(), 4);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::block_decode(i_it, integers2.end(), b_it, 4);
 	for (int i = 0; i < 10; i++) {
 		REQUIRE(integers2[i] == (integers[i] & 15));
 	}
 
-	b_it = bytes.begin();
+	d_it = bytes.begin();
 	i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 3);
+	codec::block_encode(d_it, i_it, integers.end(), 3);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
@@ -37,9 +37,9 @@ TEST_CASE("bitblk codec for small values", "[bitblk]") {
 		REQUIRE(integers2[i] == (integers[i] & 7));
 	}
 
-	b_it = bytes.begin();
+	d_it = bytes.begin();
 	i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 2);
+	codec::block_encode(d_it, i_it, integers.end(), 2);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
@@ -48,9 +48,9 @@ TEST_CASE("bitblk codec for small values", "[bitblk]") {
 		REQUIRE(integers2[i] == (integers[i] & 3));
 	}
 
-	b_it = bytes.begin();
+	d_it = bytes.begin();
 	i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 1);
+	codec::block_encode(d_it, i_it, integers.end(), 1);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
@@ -69,20 +69,20 @@ TEST_CASE("bitblk codec for large values", "[bitblk]") {
 	}};
 	std::array<uint32_t, 4> integers2;
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 32);
+	codec::block_encode(d_it, i_it, integers.end(), 32);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::block_decode(i_it, integers2.end(), b_it, 32);
 	for (int i = 0; i < 4; i++) {
 		REQUIRE(integers2[i] == (integers[i]));
 	}
 
-	b_it = bytes.begin();
+	d_it = bytes.begin();
 	i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 31);
+	codec::block_encode(d_it, i_it, integers.end(), 31);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
@@ -91,9 +91,9 @@ TEST_CASE("bitblk codec for large values", "[bitblk]") {
 		REQUIRE(integers2[i] == (integers[i] & 0x7fffffff));
 	}
 
-	b_it = bytes.begin();
+	d_it = bytes.begin();
 	i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 30);
+	codec::block_encode(d_it, i_it, integers.end(), 30);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();
@@ -102,9 +102,9 @@ TEST_CASE("bitblk codec for large values", "[bitblk]") {
 		REQUIRE(integers2[i] == (integers[i] & 0x3fffffff));
 	}
 
-	b_it = bytes.begin();
+	d_it = bytes.begin();
 	i_it = integers.begin();
-	codec::block_encode(b_it, i_it, integers.end(), 29);
+	codec::block_encode(d_it, i_it, integers.end(), 29);
 
 	b_it = bytes.begin();
 	i_it = integers2.begin();

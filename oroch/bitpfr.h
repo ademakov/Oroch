@@ -26,6 +26,7 @@
 
 #include <vector>
 
+#include <oroch/common.h>
 #include <oroch/bitpck.h>
 #include <oroch/origin.h>
 
@@ -88,18 +89,18 @@ public:
 
 	using basic_codec = bitpck_codec<original_t, parameters>;
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	encode(DstIter &dst, SrcIter &src, SrcIter send, parameters &params)
+	encode(dst_bytes_t &dst, Iter &src, Iter send, parameters &params)
 	{
 		basic_codec::encode(dst, src, send, params.nbits, params);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	decode(DstIter &dst, DstIter dend, SrcIter &src, const parameters &params)
+	decode(Iter &dst, Iter dend, src_bytes_t &src, const parameters &params)
 	{
-		DstIter arr = dst;
+		Iter arr = dst;
 		basic_codec::decode(dst, dend, src, params.nbits, params);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
 			size_t idx = params.excpts.indices[i];

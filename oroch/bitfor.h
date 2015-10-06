@@ -24,6 +24,7 @@
 #ifndef OROCH_BITFOR_H_
 #define OROCH_BITFOR_H_
 
+#include <oroch/common.h>
 #include <oroch/bitpck.h>
 #include <oroch/origin.h>
 
@@ -56,23 +57,22 @@ public:
 
 	using basic_codec = bitpck_codec<original_t, parameters>;
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	encode(DstIter &dst, SrcIter &src, SrcIter send, const parameters &params)
+	encode(dst_bytes_t &dst, Iter &src, Iter send, const parameters &params)
 	{
 		basic_codec::encode(dst, src, send, params.nbits, params);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	decode(DstIter &dst, DstIter dend, SrcIter &src, const parameters &params)
+	decode(Iter &dst, Iter dend, src_bytes_t &src, const parameters &params)
 	{
 		basic_codec::decode(dst, dend, src, params.nbits, params);
 	}
 
-	template<typename SrcIter>
 	static original_t
-	fetch(SrcIter src, const size_t index, const parameters &params)
+	fetch(src_bytes_t src, const size_t index, const parameters &params)
 	{
 		return basic_codec::fetch(src, index, params.nbits, params);
 	}

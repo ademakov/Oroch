@@ -24,6 +24,8 @@
 #ifndef OROCH_NAUGHT_H_
 #define OROCH_NAUGHT_H_
 
+#include <oroch/common.h>
+
 namespace oroch {
 
 template<typename T>
@@ -32,17 +34,16 @@ class naught_codec
 public:
 	using original_t = T;
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	encode(DstIter &, SrcIter &sbegin, SrcIter send)
+	encode(dst_bytes_t &, Iter &src, Iter send)
 	{
-		sbegin = send;
+		src = send;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	decode(DstIter &dst, DstIter dend, SrcIter &,
-	       original_t value = 0)
+	decode(Iter &dst, Iter dend, src_bytes_t &, original_t value = 0)
 	{
 		while (dst < dend)
 			*dst++ = value;

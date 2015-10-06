@@ -15,11 +15,11 @@ TEST_CASE("normal value codec", "[normal]") {
 		integers[i] = i - INTS / 2;
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.data();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end());
+	codec::encode(d_it, i_it, integers.end());
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.data();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it);
 

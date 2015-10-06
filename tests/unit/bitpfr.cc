@@ -43,13 +43,13 @@ TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]") {
 		integers[i] = FREF + (1 << (BITS + (i - SMALL)));
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end(), params);
+	codec::encode(d_it, i_it, integers.end(), params);
 	REQUIRE(excpts.indices.size() == LARGE);
 	REQUIRE(excpts.values.size() == LARGE);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it, params);
 
@@ -73,13 +73,13 @@ TEST_CASE("bitpfr codec for signed values", "[bitpfr]") {
 		integers[i] = FREF + (1 << (BITS + (i - SMALL)));
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end(), params);
+	codec::encode(d_it, i_it, integers.end(), params);
 	REQUIRE(excpts.indices.size() == LARGE);
 	REQUIRE(excpts.values.size() == LARGE);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it, params);
 

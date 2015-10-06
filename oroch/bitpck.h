@@ -26,7 +26,7 @@
 
 #include <iterator>
 
-#include <oroch/config.h>
+#include <oroch/common.h>
 #include <oroch/integer_traits.h>
 #include <oroch/zigzag.h>
 
@@ -73,10 +73,10 @@ public:
 		return block_size * block_number(nvalues, nbits);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	block_encode(DstIter &dst, SrcIter &src, SrcIter const send,
-		     const size_t nbits, value_codec vcodec = value_codec())
+	block_encode(dst_bytes_t &dst, Iter &src, Iter const send, const size_t nbits,
+		     value_codec vcodec = value_codec())
 	{
 		const size_t c = capacity(nbits);
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
@@ -122,20 +122,18 @@ public:
 		}
 
 	done:
-		auto addr = std::addressof(*dst);
-		uint64_t *block = reinterpret_cast<uint64_t *>(addr);
+		uint64_t *block = reinterpret_cast<uint64_t *>(dst);
 		block[0] = u;
 		block[1] = v;
 		dst += block_size;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	block_decode(DstIter &dst, DstIter const dend, SrcIter &src,
-		     const size_t nbits, value_codec vcodec = value_codec())
+	block_decode(Iter &dst, Iter const dend, src_bytes_t &src, const size_t nbits,
+		     value_codec vcodec = value_codec())
 	{
-		auto addr = std::addressof(*src);
-		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
+		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 		uint64_t u = block[0];
 		uint64_t v = block[1];
 		src += block_size;
@@ -169,13 +167,12 @@ public:
 		}
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	block_decode(DstIter &dst, SrcIter &src, const size_t nbits,
+	block_decode(Iter &dst, src_bytes_t &src, const size_t nbits,
 		     value_codec vcodec = value_codec())
 	{
-		auto addr = std::addressof(*src);
-		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
+		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 		uint64_t u = block[0];
 		uint64_t v = block[1];
 		src += block_size;
@@ -203,13 +200,11 @@ public:
 		}
 	}
 
-	template<typename SrcIter>
 	static original_t
-	block_fetch(SrcIter src, const size_t index, const size_t nbits,
+	block_fetch(src_bytes_t src, const size_t index, const size_t nbits,
 		    value_codec vcodec = value_codec())
 	{
-		auto addr = std::addressof(*src);
-		const uint64_t *block = reinterpret_cast<const uint64_t *>(addr);
+		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 
 		size_t m = capacity(nbits) / 2;
 
@@ -228,19 +223,19 @@ public:
 		return vcodec.value_decode(x & mask);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	encode(DstIter &dst, SrcIter &src, SrcIter send,
-	       size_t nbits, value_codec vcodec = value_codec())
+	encode(dst_bytes_t &dst, Iter &src, Iter send, size_t nbits,
+	       value_codec vcodec = value_codec())
 	{
 		while (src < send)
 			block_encode(dst, src, send, nbits, vcodec);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	decode(DstIter &dst, DstIter dend, SrcIter &src,
-	       size_t nbits, value_codec vcodec = value_codec())
+	decode(Iter &dst, Iter dend, src_bytes_t &src, size_t nbits,
+	       value_codec vcodec = value_codec())
 	{
 		size_t n = std::distance(dst, dend);
 		size_t c = capacity(nbits);
@@ -251,9 +246,8 @@ public:
 			block_decode(dst, dend, src, nbits, vcodec);
 	}
 
-	template<typename SrcIter>
 	static original_t
-	fetch(SrcIter src, const size_t index, const size_t nbits,
+	fetch(src_bytes_t src, const size_t index, const size_t nbits,
 	      value_codec vcodec = value_codec())
 	{
 		size_t c = capacity(nbits);

@@ -67,9 +67,8 @@ public:
 		return count;
 	}
 
-	template<typename DstIter>
 	static void
-	value_encode(DstIter &dst, original_t src, value_codec vcodec = value_codec())
+	value_encode(dst_bytes_t &dst, original_t src, value_codec vcodec = value_codec())
 	{
 		unsigned_t value = vcodec.value_encode(src);
 		while (value >= 0x80) {
@@ -79,17 +78,16 @@ public:
 		*dst++ = byte_t(value);
 	}
 
-	template<typename SrcIter>
 	static void
-	value_decode(original_t &dst, SrcIter &src, value_codec vcodec = value_codec())
+	value_decode(original_t &dst, src_bytes_t &src, value_codec vcodec = value_codec())
 	{
-		unsigned_t value = byte_t(*src++);
-		if (signed_byte_t(value) < 0) {
+		unsigned_t value = *src++;
+		if (value >= 0x80) {
 			value &= 0x7f;
-			int shift = 7;
+			unsigned shift = 7;
 			for (;;) {
 				byte_t byte = *src++;
-				if (signed_byte_t(byte) > 0) {
+				if (byte < 0x80) {
 					value |= unsigned_t(byte) << shift;
 					break;
 				}
@@ -101,10 +99,9 @@ public:
 	}
 
 	// Get the number of bytes needed to encode a given integer sequence.
-	template<typename SrcIter>
+	template<typename Iter>
 	static size_t
-	space(SrcIter const src, SrcIter const send,
-	      value_codec vcodec = value_codec())
+	space(Iter const src, Iter const send, value_codec vcodec = value_codec())
 	{
 		size_t count = 0;
 		while (src != send)
@@ -112,19 +109,17 @@ public:
 		return count;
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	encode(DstIter &dst, SrcIter &src, SrcIter const send,
-	       value_codec vcodec = value_codec())
+	encode(dst_bytes_t &dst, Iter &src, Iter const send, value_codec vcodec = value_codec())
 	{
 		while (src != send)
 			value_encode(dst, *src++, vcodec);
 	}
 
-	template<typename DstIter, typename SrcIter>
+	template<typename Iter>
 	static void
-	decode(DstIter &dst, DstIter const dend, SrcIter &src,
-	       value_codec vcodec = value_codec())
+	decode(Iter &dst, Iter const dend, src_bytes_t &src, value_codec vcodec = value_codec())
 	{
 		while (dst != dend)
 			value_decode(*dst++, src, vcodec);

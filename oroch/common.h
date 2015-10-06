@@ -24,11 +24,17 @@
 #ifndef OROCH_COMMON_H_
 #define OROCH_COMMON_H_
 
+#include <oroch/config.h>
+
 namespace oroch {
 
 typedef unsigned char byte_t;
 
 typedef signed char signed_byte_t;
+
+typedef byte_t * dst_bytes_t;
+
+typedef const byte_t * src_bytes_t;
 
 } // namespace oroch
 

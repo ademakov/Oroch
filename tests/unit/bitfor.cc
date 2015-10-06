@@ -19,11 +19,11 @@ TEST_CASE("bitfor codec for unsigned values", "[bitfor]") {
 		integers[i] = i + FREF;
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end(), params);
+	codec::encode(d_it, i_it, integers.end(), params);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it, params);
 
@@ -43,11 +43,11 @@ TEST_CASE("bitfor codec for signed values", "[bitfor]") {
 		integers[i] = i - FREF;
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end(), params);
+	codec::encode(d_it, i_it, integers.end(), params);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it, params);
 

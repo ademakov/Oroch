@@ -169,9 +169,8 @@ struct encoding_metadata
 		outlier_index_vec.clear();
 	}
 
-	template<typename DstIter>
 	void
-	encode(DstIter &dst) const
+	encode(dst_bytes_t &dst) const
 	{
 		encoding_t encoding = value_desc.encoding;
 		*dst++ = encoding;
@@ -193,9 +192,8 @@ struct encoding_metadata
 		}
 	}
 
-	template<typename SrcIter>
 	void
-	decode(SrcIter &src)
+	decode(src_bytes_t &src)
 	{
 		encoding_t encoding = static_cast<encoding_t>(*src++);
 		value_desc.encoding = encoding;
@@ -245,16 +243,16 @@ public:
 	using varint = varint_codec<original_t, zigzag>;
 	using varfor = varint_codec<original_t, origin>;
 
-	template<typename SrcIter>
+	template<typename Iter>
 	static void
-	select(metadata &meta, SrcIter const sbegin, SrcIter const send)
+	select(metadata &meta, Iter const src, Iter const send)
 	{
 		//
 		// Collect value statistics.
 		//
 
 		detail::encoding_statistics<original_t> vstat;
-		vstat.collect(sbegin, send);
+		vstat.collect(src, send);
 
 		//
 		// Handle trivial corner cases.
@@ -282,35 +280,21 @@ public:
 		// Select the best encoding for the sequence.
 		//
 
-		select_best(meta, vstat, sbegin, send);
+		select_best(meta, vstat, src, send);
 	}
 
-	template<typename DstIter>
+	template<typename Iter>
 	static void
-	encode_meta(DstIter &dst, metadata &meta)
+	encode(dst_bytes_t &dst, Iter &src, Iter const send, metadata &meta)
 	{
-		meta.encode(dst);
+		encode_basic(dst, src, send, meta.value_desc);
 	}
 
-	template<typename SrcIter>
+	template<typename Iter>
 	static void
-	decode_meta(SrcIter &src, metadata &meta)
+	decode(Iter &dst, Iter const dend, src_bytes_t &src, metadata &meta)
 	{
-		meta.decode(src);
-	}
-
-	template<typename DstIter, typename SrcIter>
-	static void
-	encode(DstIter &dbegin, SrcIter &sbegin, SrcIter const send, metadata &meta)
-	{
-		encode_basic(dbegin, sbegin, send, meta.value_desc);
-	}
-
-	template<typename DstIter, typename SrcIter>
-	static void
-	decode(DstIter &dbegin, DstIter const dend, SrcIter &sbegin, metadata &meta)
-	{
-		decode_basic(dbegin, dend, sbegin, meta.value_desc);
+		decode_basic(dst, dend, src, meta.value_desc);
 	}
 
 private:
@@ -330,11 +314,11 @@ private:
 		}
 	}
 
-	template<typename integer_t, typename SrcIter>
+	template<typename integer_t, typename Iter>
 	static void
 	select_best(metadata &meta,
 		    const detail::encoding_statistics<integer_t> &vstat,
-		    SrcIter src, SrcIter const send)
+		    Iter src, Iter const send)
 	{
 		//
 		// Select the best basic encoding.
@@ -352,11 +336,11 @@ private:
 		//
 	}
 
-	template<typename integer_t, typename SrcIter>
+	template<typename integer_t, typename Iter>
 	static void
 	select_basic(detail::encoding_descriptor<integer_t> &desc,
 		     const detail::encoding_statistics<integer_t> &stat,
-		     SrcIter src, SrcIter const send)
+		     Iter src, Iter const send)
 	{
 		size_t dataspace, metaspace, nbits;
 
@@ -433,9 +417,9 @@ private:
 			stat.min(), 0);
 	}
 
-	template<typename integer_t, typename DstIter, typename SrcIter>
+	template<typename integer_t, typename Iter>
 	static void
-	encode_basic(DstIter &dst, SrcIter &src, SrcIter const send,
+	encode_basic(dst_bytes_t &dst, Iter &src, Iter const send,
 		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
@@ -461,9 +445,9 @@ private:
 		}
 	}
 
-	template<typename integer_t, typename DstIter, typename SrcIter>
+	template<typename integer_t, typename Iter>
 	static void
-	decode_basic(DstIter &dst, DstIter const dend, SrcIter &src,
+	decode_basic(Iter &dst, Iter const dend, src_bytes_t &src,
 		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {

@@ -16,11 +16,11 @@ TEST_CASE("bitpck codec for unsigned values", "[bitpck]") {
 		integers[i] = i;
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end(), BITS);
+	codec::encode(d_it, i_it, integers.end(), BITS);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it, BITS);
 
@@ -39,11 +39,11 @@ TEST_CASE("bitpck codec for signed values", "[bitpck]") {
 		integers[i] = i - 64;
 	}
 
-	auto b_it = bytes.begin();
+	oroch::dst_bytes_t d_it = bytes.begin();
 	auto i_it = integers.begin();
-	codec::encode(b_it, i_it, integers.end(), BITS);
+	codec::encode(d_it, i_it, integers.end(), BITS);
 
-	b_it = bytes.begin();
+	oroch::src_bytes_t b_it = bytes.begin();
 	i_it = integers2.begin();
 	codec::decode(i_it, integers2.end(), b_it, BITS);
 
