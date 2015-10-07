@@ -101,27 +101,27 @@ public:
 	// Get the number of bytes needed to encode a given integer sequence.
 	template<typename Iter>
 	static size_t
-	space(Iter const src, Iter const send, value_codec vcodec = value_codec())
+	space(Iter src, Iter const end, value_codec vcodec = value_codec())
 	{
 		size_t count = 0;
-		while (src != send)
+		while (src != end)
 			count += value_space(*src++, vcodec);
 		return count;
 	}
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter &src, Iter const send, value_codec vcodec = value_codec())
+	encode(dst_bytes_t &dst, Iter src, Iter const end, value_codec vcodec = value_codec())
 	{
-		while (src != send)
+		while (src != end)
 			value_encode(dst, *src++, vcodec);
 	}
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter const dend, src_bytes_t &src, value_codec vcodec = value_codec())
+	decode(Iter dst, Iter const end, src_bytes_t &src, value_codec vcodec = value_codec())
 	{
-		while (dst != dend)
+		while (dst != end)
 			value_decode(*dst++, src, vcodec);
 	}
 };

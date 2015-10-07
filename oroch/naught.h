@@ -36,16 +36,15 @@ public:
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &, Iter &src, Iter send)
+	encode(dst_bytes_t &, Iter, Iter)
 	{
-		src = send;
 	}
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter dend, src_bytes_t &, original_t value = 0)
+	decode(Iter dst, Iter end, src_bytes_t &, original_t value = 0)
 	{
-		while (dst < dend)
+		while (dst < end)
 			*dst++ = value;
 	}
 };

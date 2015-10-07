@@ -42,9 +42,9 @@ public:
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter &src, Iter send)
+	encode(dst_bytes_t &dst, Iter src, Iter end)
 	{
-		while (src < send) {
+		while (src < end) {
 			*reinterpret_cast<original_t *>(dst) = *src++;
 			dst += sizeof(original_t);
 		}
@@ -52,9 +52,9 @@ public:
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter dend, src_bytes_t &src)
+	decode(Iter dst, Iter end, src_bytes_t &src)
 	{
-		while (dst < dend) {
+		while (dst < end) {
 			*dst++ = *reinterpret_cast<const original_t *>(src);
 			src += sizeof(original_t);
 		}

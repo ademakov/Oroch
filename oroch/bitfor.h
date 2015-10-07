@@ -59,16 +59,16 @@ public:
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter &src, Iter send, const parameters &params)
+	encode(dst_bytes_t &dst, Iter src, Iter end, const parameters &params)
 	{
-		basic_codec::encode(dst, src, send, params.nbits, params);
+		basic_codec::encode(dst, src, end, params.nbits, params);
 	}
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter dend, src_bytes_t &src, const parameters &params)
+	decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
 	{
-		basic_codec::decode(dst, dend, src, params.nbits, params);
+		basic_codec::decode(dst, end, src, params.nbits, params);
 	}
 
 	static original_t

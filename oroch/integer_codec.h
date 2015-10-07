@@ -114,9 +114,9 @@ public:
 
 	template<typename Iter>
 	void
-	collect(Iter src, Iter const send)
+	collect(Iter src, Iter const end)
 	{
-		for (; src != send; ++src)
+		for (; src != end; ++src)
 			add(*src);
 	}
 
@@ -245,14 +245,14 @@ public:
 
 	template<typename Iter>
 	static void
-	select(metadata &meta, Iter const src, Iter const send)
+	select(metadata &meta, Iter const src, Iter const end)
 	{
 		//
 		// Collect value statistics.
 		//
 
 		detail::encoding_statistics<original_t> vstat;
-		vstat.collect(src, send);
+		vstat.collect(src, end);
 
 		//
 		// Handle trivial corner cases.
@@ -280,21 +280,21 @@ public:
 		// Select the best encoding for the sequence.
 		//
 
-		select_best(meta, vstat, src, send);
+		select_best(meta, vstat, src, end);
 	}
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter &src, Iter const send, metadata &meta)
+	encode(dst_bytes_t &dst, Iter src, Iter const end, metadata &meta)
 	{
-		encode_basic(dst, src, send, meta.value_desc);
+		encode_basic(dst, src, end, meta.value_desc);
 	}
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter const dend, src_bytes_t &src, metadata &meta)
+	decode(Iter dst, Iter const end, src_bytes_t &src, metadata &meta)
 	{
-		decode_basic(dst, dend, src, meta.value_desc);
+		decode_basic(dst, end, src, meta.value_desc);
 	}
 
 private:
@@ -318,13 +318,13 @@ private:
 	static void
 	select_best(metadata &meta,
 		    const detail::encoding_statistics<integer_t> &vstat,
-		    Iter src, Iter const send)
+		    Iter src, Iter const end)
 	{
 		//
 		// Select the best basic encoding.
 		//
 
-		select_basic(meta.value_desc, vstat, src, send);
+		select_basic(meta.value_desc, vstat, src, end);
 		if (vstat.nvalues() < 4)
 			return;
 
@@ -340,7 +340,7 @@ private:
 	static void
 	select_basic(detail::encoding_descriptor<integer_t> &desc,
 		     const detail::encoding_statistics<integer_t> &stat,
-		     Iter src, Iter const send)
+		     Iter src, Iter const end)
 	{
 		size_t dataspace, metaspace, nbits;
 
@@ -402,7 +402,7 @@ private:
 		// Count the memory footprint of the two kinds of varints.
 		const origin orig(stat.min());
 		size_t vispace = 0, vfspace = 0;
-		for (; src != send; ++src) {
+		for (; src != end; ++src) {
 			original_t val = *src;
 			vispace += varint::value_space(val);
 			vfspace += varfor::value_space(val, orig);
@@ -419,56 +419,56 @@ private:
 
 	template<typename integer_t, typename Iter>
 	static void
-	encode_basic(dst_bytes_t &dst, Iter &src, Iter const send,
+	encode_basic(dst_bytes_t &dst, Iter src, Iter const end,
 		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:
-			naught::encode(dst, src, send);
+			naught::encode(dst, src, end);
 			break;
 		case encoding_t::normal:
-			normal::encode(dst, src, send);
+			normal::encode(dst, src, end);
 			break;
 		case encoding_t::varint:
-			varint::encode(dst, src, send);
+			varint::encode(dst, src, end);
 			break;
 		case encoding_t::varfor:
-			varfor::encode(dst, src, send, origin(desc.origin));
+			varfor::encode(dst, src, end, origin(desc.origin));
 			break;
 		case encoding_t::bitpck:
-			bitpck::encode(dst, src, send, desc.nbits);
+			bitpck::encode(dst, src, end, desc.nbits);
 			break;
 		case encoding_t::bitfor:
 			typename bitfor::parameters params(desc.origin, desc.nbits);
-			bitfor::encode(dst, src, send, params);
+			bitfor::encode(dst, src, end, params);
 			break;
 		}
 	}
 
 	template<typename integer_t, typename Iter>
 	static void
-	decode_basic(Iter &dst, Iter const dend, src_bytes_t &src,
+	decode_basic(Iter dst, Iter const end, src_bytes_t &src,
 		     const detail::encoding_descriptor<integer_t> &desc)
 	{
 		switch(desc.encoding) {
 		case encoding_t::naught:
-			naught::decode(dst, dend, src, desc.origin);
+			naught::decode(dst, end, src, desc.origin);
 			break;
 		case encoding_t::normal:
-			normal::decode(dst, dend, src);
+			normal::decode(dst, end, src);
 			break;
 		case encoding_t::varint:
-			varint::decode(dst, dend, src);
+			varint::decode(dst, end, src);
 			break;
 		case encoding_t::varfor:
-			varfor::decode(dst, dend, src, origin(desc.origin));
+			varfor::decode(dst, end, src, origin(desc.origin));
 			break;
 		case encoding_t::bitpck:
-			bitpck::decode(dst, dend, src, desc.nbits);
+			bitpck::decode(dst, end, src, desc.nbits);
 			break;
 		case encoding_t::bitfor:
 			typename bitfor::parameters params(desc.origin, desc.nbits);
-			bitfor::decode(dst, dend, src, params);
+			bitfor::decode(dst, end, src, params);
 			break;
 		}
 	}

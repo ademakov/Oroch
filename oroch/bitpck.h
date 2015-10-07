@@ -75,7 +75,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_encode(dst_bytes_t &dst, Iter &src, Iter const send, const size_t nbits,
+	block_encode(dst_bytes_t &dst, Iter &src, Iter const end, const size_t nbits,
 		     value_codec vcodec = value_codec())
 	{
 		const size_t c = capacity(nbits);
@@ -88,7 +88,7 @@ public:
 		size_t n = c - m;
 		size_t shift = 0;
 		while (m--) {
-			if (src == send)
+			if (src == end)
 				goto done;
 
 			uint64_t value = vcodec.value_encode(*src++);
@@ -98,7 +98,7 @@ public:
 		if (shift == 64) {
 			shift = 0;
 		} else {
-			if (src == send)
+			if (src == end)
 				goto done;
 
 			size_t nbits1 = 64 - shift;
@@ -113,7 +113,7 @@ public:
 			n--;
 		}
 		while (n--) {
-			if (src == send)
+			if (src == end)
 				goto done;
 
 			uint64_t value = vcodec.value_encode(*src++);
@@ -130,7 +130,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_decode(Iter &dst, Iter const dend, src_bytes_t &src, const size_t nbits,
+	block_decode(Iter &dst, Iter const end, src_bytes_t &src, const size_t nbits,
 		     value_codec vcodec = value_codec())
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
@@ -143,7 +143,7 @@ public:
 		size_t c = capacity(nbits);
 		size_t m = c / 2;
 		size_t mbits = m * nbits;
-		size_t k = std::distance(dst, dend);
+		size_t k = std::distance(dst, end);
 		if (c > k) {
 			c = k;
 			if (m > k)
@@ -225,25 +225,25 @@ public:
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter &src, Iter send, size_t nbits,
+	encode(dst_bytes_t &dst, Iter src, Iter end, size_t nbits,
 	       value_codec vcodec = value_codec())
 	{
-		while (src < send)
-			block_encode(dst, src, send, nbits, vcodec);
+		while (src < end)
+			block_encode(dst, src, end, nbits, vcodec);
 	}
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter dend, src_bytes_t &src, size_t nbits,
+	decode(Iter dst, Iter end, src_bytes_t &src, size_t nbits,
 	       value_codec vcodec = value_codec())
 	{
-		size_t n = std::distance(dst, dend);
+		size_t n = std::distance(dst, end);
 		size_t c = capacity(nbits);
 		size_t d = n / c, r = n % c;
 		while (d--)
 			block_decode(dst, src, nbits, vcodec);
 		if (r)
-			block_decode(dst, dend, src, nbits, vcodec);
+			block_decode(dst, end, src, nbits, vcodec);
 	}
 
 	static original_t

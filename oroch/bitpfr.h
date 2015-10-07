@@ -91,17 +91,17 @@ public:
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter &src, Iter send, parameters &params)
+	encode(dst_bytes_t &dst, Iter src, Iter end, parameters &params)
 	{
-		basic_codec::encode(dst, src, send, params.nbits, params);
+		basic_codec::encode(dst, src, end, params.nbits, params);
 	}
 
 	template<typename Iter>
 	static void
-	decode(Iter &dst, Iter dend, src_bytes_t &src, const parameters &params)
+	decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
 	{
 		Iter arr = dst;
-		basic_codec::decode(dst, dend, src, params.nbits, params);
+		basic_codec::decode(dst, end, src, params.nbits, params);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
 			size_t idx = params.excpts.indices[i];
 			unsigned_t value = params.basic_value_encode(arr[idx]);
