@@ -130,7 +130,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_decode(Iter &dst, Iter const end, src_bytes_t &src, const size_t nbits,
+	block_decode(Iter dst, Iter const end, src_bytes_t &src, const size_t nbits,
 		     value_codec vcodec = value_codec())
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
@@ -169,7 +169,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_decode(Iter &dst, src_bytes_t &src, const size_t nbits,
+	block_decode(Iter dst, src_bytes_t &src, const size_t nbits,
 		     value_codec vcodec = value_codec())
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
@@ -237,13 +237,17 @@ public:
 	decode(Iter dst, Iter end, src_bytes_t &src, size_t nbits,
 	       value_codec vcodec = value_codec())
 	{
-		size_t n = std::distance(dst, end);
 		size_t c = capacity(nbits);
-		size_t d = n / c, r = n % c;
-		while (d--)
+		for (;;) {
+			Iter block_end = dst + c;
+			if (block_end > end) {
+				if (dst != end)
+					block_decode(dst, end, src, nbits, vcodec);
+				break;
+			}
 			block_decode(dst, src, nbits, vcodec);
-		if (r)
-			block_decode(dst, end, src, nbits, vcodec);
+			dst = block_end;
+		}
 	}
 
 	static original_t
