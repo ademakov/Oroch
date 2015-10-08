@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <iostream>
-#include <string>
+#include <vector>
 
 #include <oroch/integer_group.h>
 
