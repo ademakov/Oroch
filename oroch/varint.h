@@ -78,24 +78,43 @@ public:
 		*dst++ = byte_t(value);
 	}
 
+	static original_t
+	value_decode(src_bytes_t &src, value_codec vcodec = value_codec())
+	{
+		unsigned_t value = *src++;
+		if ((value & 0x80) != 0) {
+			value &= 0x7f;
+
+			unsigned_t byte = *src++;
+			if ((byte & 0x80) == 0) {
+				value |= byte << 7;
+			} else  {
+				value |= (byte & 0x7f) << 7;
+
+				byte = *src++;
+				if ((byte & 0x80) == 0) {
+					value |= byte << 14;
+				} else {
+					value |= (byte & 0x7f) << 14;
+
+					for (unsigned shift = 21; ; shift += 7) {
+						byte = *src++;
+						if ((byte & 0x80) == 0) {
+							value |= byte << shift;
+							break;
+						}
+						value |= (byte & 0x7f) << shift;
+					}
+				}
+			}
+		}
+		return vcodec.value_decode(value);
+	}
+
 	static void
 	value_decode(original_t &dst, src_bytes_t &src, value_codec vcodec = value_codec())
 	{
-		unsigned_t value = *src++;
-		if (value >= 0x80) {
-			value &= 0x7f;
-			unsigned shift = 7;
-			for (;;) {
-				byte_t byte = *src++;
-				if (byte < 0x80) {
-					value |= unsigned_t(byte) << shift;
-					break;
-				}
-				value |= unsigned_t(byte & 0x7f) << shift;
-				shift += 7;
-			}
-		}
-		dst = vcodec.value_decode(value);
+		dst = value_decode(src, vcodec);
 	}
 
 	// Get the number of bytes needed to encode a given integer sequence.
