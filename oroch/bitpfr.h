@@ -100,13 +100,26 @@ public:
 	static void
 	decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
 	{
-		Iter arr = dst;
+		decode_basic(dst, end, src, params);
+		decode_patch(dst, params);
+	}
+
+	template<typename Iter>
+	static void
+	decode_basic(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
+	{
 		basic_codec::decode(dst, end, src, params.nbits, params);
+	}
+
+	template<typename Iter>
+	static void
+	decode_patch(Iter dst, const parameters &params)
+	{
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
 			size_t idx = params.excpts.indices[i];
-			unsigned_t value = params.basic_value_encode(arr[idx]);
+			unsigned_t value = params.basic_value_encode(dst[idx]);
 			value |= params.excpts.values[i] << params.nbits;
-			arr[idx] = params.value_decode(value);
+			dst[idx] = params.value_decode(value);
 		}
 	}
 };
