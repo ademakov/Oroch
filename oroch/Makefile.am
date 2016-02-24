@@ -10,6 +10,7 @@ include_HEADERS = \
     integer_traits.h \
     naught.h \
     normal.h \
+    offset.h \
     origin.h \
     varint.h \
     zigzag.h
