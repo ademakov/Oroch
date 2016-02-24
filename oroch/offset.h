@@ -62,11 +62,11 @@ public:
 	}
 
 	original_t
-	value_decode(unsigned_t v)
+	value_decode(unsigned_t u)
 	{
-		original_t u = original_t(origin_ + v);
-		origin_ = u + offset;
-		return u;
+		original_t v = original_t(origin_ + u);
+		origin_ = v + offset;
+		return v;
 	}
 
 private:
