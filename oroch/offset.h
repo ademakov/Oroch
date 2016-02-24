@@ -34,23 +34,23 @@ namespace oroch {
 // sequence of positions that naturally differ by 1 at least. If the
 // offset value is zero then this codec is reduced to a delta codec.
 //
-template<typename T, T offset>
+// If the very first element of the sequence is going to be taken out
+// of the sequence and encoded separately defining the origin for the
+// rest of the sequence, then the offset has to be applied to it too.
+// If the origin is known from the general sequence properties and the
+// first element is encoded with the rest, then it could be equal to
+// the origin and has to be exempted from the offset application.
+//
+template<typename T, T offset, bool taken_out>
 class offset_codec
 {
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 
-	// If the origin is the first element of the sequence and it is going
-	// to be encoded separately then apply the offset to it. If the origin
-	// is known from the general sequence properties and the first element
-	// is going to be encoded along with other elements, then it could be
-	// equal to the origin, so do not apply affet to it.
-	offset_codec(original_t origin, bool is_taken_out)
-	: origin_{origin}
+	offset_codec(original_t origin)
+	: origin_{origin + (taken_out ? offset : 0)}
 	{
-		if (is_taken_out)
-			origin_ += offset;
 	}
 
 	unsigned_t
