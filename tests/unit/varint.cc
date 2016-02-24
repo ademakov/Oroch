@@ -6,6 +6,16 @@
 using varint32 = oroch::varint_codec<uint32_t>;
 using varint64 = oroch::varint_codec<uint64_t>;
 
+TEST_CASE("varint codec space calculation", "[varint]") {
+	REQUIRE(varint64::value_space(0) == 1);
+	REQUIRE(varint64::value_space(1) == 1);
+	REQUIRE(varint64::value_space(127) == 1);
+	REQUIRE(varint64::value_space(128) == 2);
+	REQUIRE(varint64::value_space(16383) == 2);
+	REQUIRE(varint64::value_space(16384) == 3);
+	REQUIRE(varint64::value_space(UINT64_MAX) == 10);
+}
+
 TEST_CASE("varint codec for single value", "[varint]") {
 
 	std::array<uint8_t, 10> bytes;
