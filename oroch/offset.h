@@ -46,10 +46,10 @@ public:
 	// is known from the general sequence properties and the first element
 	// is going to be encoded along with other elements, then it could be
 	// equal to the origin, so do not apply affet to it.
-	offset_codec(original_t origin, bool is_first_taken_out)
+	offset_codec(original_t origin, bool is_taken_out)
 	: origin_{origin}
 	{
-		if (is_first_taken_out)
+		if (is_taken_out)
 			origin_ += offset;
 	}
 
