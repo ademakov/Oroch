@@ -12,6 +12,7 @@ unit_tests_SOURCES = \
     bitpck.cc \
     bitpfr.cc \
     normal.cc \
+    offset.cc \
     varint.cc \
     zigzag.cc \
     integer_codec.cc \
