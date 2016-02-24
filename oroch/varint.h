@@ -51,20 +51,26 @@ public:
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 	using value_codec = V;
 
-	// The maximum number of bytes needed to encode an integer.
-	static constexpr size_t nbytemax = (integer_traits<original_t>::nbits + 6) / 7;
+	// The number of bytes needed to encode an integer with the given
+	// number of significant bits.
+	static constexpr size_t
+	nbits_space(size_t nbits)
+	{
+		return (nbits + 6) / 7;
+	}
+
+	// The maximum number of bytes needed to encode an integer of the
+	// template-specified type.
+	static constexpr size_t nbytemax = nbits_space(integer_traits<original_t>::nbits);
 
 	// Get the number of bytes needed to encode a given integer value.
 	static size_t
 	value_space(original_t src, value_codec vcodec = value_codec())
 	{
-		size_t count = 1;
 		unsigned_t value = vcodec.value_encode(src);
-		while (value >= 0x80) {
-			value >>= 7;
-			count++;
-		}
-		return count;
+		if (value == 0)
+			return 1;
+		return nbits_space(integer_traits<unsigned_t>::usedcount(value));
 	}
 
 	static void
