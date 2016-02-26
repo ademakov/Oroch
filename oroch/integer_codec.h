@@ -367,24 +367,21 @@ public:
 		size_t nbits_max = integer_traits<unsigned_t>::usedcount(range);
 
 		vstat.build_histogram(src, end);
-		size_t nreg = vstat.histogram(0); // regular values
-		size_t nout = vstat.nvalues() - nreg; // outlier values
+		size_t noutliers = vstat.nvalues() - vstat.histogram(0); // outlier values
 		for (size_t nbits = 1; nbits < nbits_max; nbits++) {
 			size_t n = vstat.histogram(nbits);
 			if (n == 0)
 				continue;
-
-			nreg += n;
-			nout -= n;
+			noutliers -= n;
 
 			// The memory required to encode all regular bits.
-			size_t basic_dataspace = bitpck_codec<unsigned_t>::space(nreg, nbits);
+			size_t basic_dataspace = bitpck_codec<unsigned_t>::space(vstat.nvalues(), nbits);
 
 			// Take into account the outliers number and two nbits values.
-			size_t extra_metaspace = 2 + varint_codec<size_t>::value_space(nout);
+			size_t extra_metaspace = 2 + varint_codec<size_t>::value_space(noutliers);
 
 			// The memory required to bit-pack the outliers.
-			size_t valpck = bitpck_codec<unsigned_t>::space(nout, nbits_max - nbits);
+			size_t valpck = bitpck_codec<unsigned_t>::space(noutliers, nbits_max - nbits);
 
 			// The memory required to varint-encode the outliers.
 			size_t valvar = 0;
@@ -406,7 +403,7 @@ public:
 
 			// Get the very minimum memory required for outlier indices
 			// and stop here if the required space is too large.
-			size_t indmin = bitpck_codec<size_t>::space(nout, 1);
+			size_t indmin = bitpck_codec<size_t>::space(noutliers, 1);
 			if (indmin > vstat.nvalues())
 				indmin = vstat.nvalues();
 			size_t estimate = (basic_metaspace + extra_metaspace
@@ -430,7 +427,7 @@ public:
 					indnbits = inb;
 				indvar += varint_codec<size_t>::value_space(j);
 			}
-			size_t indpck = bitpck_codec<size_t>::space(nout, indnbits);
+			size_t indpck = bitpck_codec<size_t>::space(noutliers, indnbits);
 
 			// Choose between the two encodings for outlier indices.
 			encoding_t index_encoding;
