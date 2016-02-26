@@ -413,7 +413,7 @@ public:
 				continue;
 
 			// Compute the really required memory for outlier indices.
-			size_t indnbits = 0, indvar = 0;
+			size_t indnbits = 1, indvar = 0;
 			offset_codec<size_t, 1, false> index_codec(0);
 			for (Iter cur = src; cur < end; cur++) {
 				unsigned_t u = (*cur - vstat.min()) >> nbits;
