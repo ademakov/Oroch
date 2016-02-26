@@ -1,6 +1,6 @@
 // bitpck.h
 //
-// Copyright (c) 2015  Aleksey Demakov
+// Copyright (c) 2015-2016  Aleksey Demakov
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -75,8 +75,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_encode(dst_bytes_t &dst, Iter &src, Iter const end, const size_t nbits,
-		     value_codec vcodec = value_codec())
+	block_encode(dst_bytes_t &dst, Iter &src, Iter const end, const size_t nbits, value_codec &vcodec)
 	{
 		const size_t c = capacity(nbits);
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
@@ -130,8 +129,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_decode(Iter dst, Iter const end, src_bytes_t &src, const size_t nbits,
-		     value_codec vcodec = value_codec())
+	block_decode(Iter dst, Iter const end, src_bytes_t &src, const size_t nbits, value_codec &vcodec)
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 		uint64_t u = block[0];
@@ -169,8 +167,7 @@ public:
 
 	template<typename Iter>
 	static void
-	block_decode(Iter dst, src_bytes_t &src, const size_t nbits,
-		     value_codec vcodec = value_codec())
+	block_decode(Iter dst, src_bytes_t &src, const size_t nbits, value_codec &vcodec)
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 		uint64_t u = block[0];
@@ -201,8 +198,7 @@ public:
 	}
 
 	static original_t
-	block_fetch(src_bytes_t src, const size_t index, const size_t nbits,
-		    value_codec vcodec = value_codec())
+	block_fetch(src_bytes_t src, const size_t index, const size_t nbits, value_codec &vcodec)
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 
@@ -225,8 +221,7 @@ public:
 
 	template<typename Iter>
 	static void
-	encode(dst_bytes_t &dst, Iter src, Iter end, size_t nbits,
-	       value_codec vcodec = value_codec())
+	encode(dst_bytes_t &dst, Iter src, Iter end, size_t nbits, value_codec vcodec = value_codec())
 	{
 		while (src < end)
 			block_encode(dst, src, end, nbits, vcodec);
@@ -234,8 +229,7 @@ public:
 
 	template<typename Iter>
 	static void
-	decode(Iter dst, Iter end, src_bytes_t &src, size_t nbits,
-	       value_codec vcodec = value_codec())
+	decode(Iter dst, Iter end, src_bytes_t &src, size_t nbits, value_codec vcodec = value_codec())
 	{
 		size_t c = capacity(nbits);
 		for (;;) {
@@ -251,8 +245,7 @@ public:
 	}
 
 	static original_t
-	fetch(src_bytes_t src, const size_t index, const size_t nbits,
-	      value_codec vcodec = value_codec())
+	fetch(src_bytes_t src, const size_t index, const size_t nbits, value_codec vcodec = value_codec())
 	{
 		size_t c = capacity(nbits);
 		src += (index / c) * block_size;
