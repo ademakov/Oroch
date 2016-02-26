@@ -446,6 +446,8 @@ public:
 				meta.value_desc.encoding = encoding_t::bitpfr;
 				meta.value_desc.origin = vstat.min();
 				meta.value_desc.nbits = nbits;
+
+				meta.noutliers = noutliers;
 				meta.outlier_value_desc.encoding = value_encoding;
 				meta.outlier_value_desc.nbits = nbits_max - nbits;
 				meta.outlier_index_desc.encoding = index_encoding;
@@ -643,7 +645,7 @@ private:
 				meta.value_desc.origin,
 				meta.value_desc.nbits,
 				outliers);
-		bitpfr_codec<original_t>::encode(dst, end, src, params);
+		bitpfr_codec<original_t>::encode(dst, src, end, params);
 
 		// Encode the outliers info.
 		encode_basic(dst, outliers.indices.begin(), outliers.indices.end(),
