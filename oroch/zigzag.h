@@ -25,7 +25,8 @@
 #define OROCH_ZIGZAG_H_
 
 #include <type_traits>
-#include <oroch/integer_traits.h>
+
+#include "integer_traits.h"
 
 namespace oroch {
 

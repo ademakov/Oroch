@@ -24,7 +24,7 @@
 #ifndef OROCH_NORMAL_H_
 #define OROCH_NORMAL_H_
 
-#include <oroch/common.h>
+#include "common.h"
 
 namespace oroch {
 

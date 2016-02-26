@@ -24,9 +24,9 @@
 #ifndef OROCH_BITFOR_H_
 #define OROCH_BITFOR_H_
 
-#include <oroch/common.h>
-#include <oroch/bitpck.h>
-#include <oroch/origin.h>
+#include "common.h"
+#include "bitpck.h"
+#include "origin.h"
 
 namespace oroch {
 

@@ -24,7 +24,7 @@
 #ifndef OROCH_ORIGIN_H_
 #define OROCH_ORIGIN_H_
 
-#include <oroch/integer_traits.h>
+#include "integer_traits.h"
 
 namespace oroch {
 

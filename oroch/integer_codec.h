@@ -30,17 +30,17 @@
 #include <ostream>
 #include <vector>
 
-#include <oroch/common.h>
-#include <oroch/integer_traits.h>
-#include <oroch/bitpck.h>
-#include <oroch/bitfor.h>
-#include <oroch/bitpfr.h>
-#include <oroch/naught.h>
-#include <oroch/normal.h>
-#include <oroch/offset.h>
-#include <oroch/origin.h>
-#include <oroch/varint.h>
-#include <oroch/zigzag.h>
+#include "common.h"
+#include "integer_traits.h"
+#include "bitpck.h"
+#include "bitfor.h"
+#include "bitpfr.h"
+#include "naught.h"
+#include "normal.h"
+#include "offset.h"
+#include "origin.h"
+#include "varint.h"
+#include "zigzag.h"
 
 namespace oroch {
 

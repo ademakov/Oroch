@@ -26,10 +26,10 @@
 
 #include <vector>
 
-#include <oroch/common.h>
-#include <oroch/bitpck.h>
-#include <oroch/offset.h>
-#include <oroch/origin.h>
+#include "common.h"
+#include "bitpck.h"
+#include "offset.h"
+#include "origin.h"
 
 namespace oroch {
 

@@ -26,8 +26,8 @@
 
 #include <memory>
 
-#include <oroch/common.h>
-#include <oroch/integer_codec.h>
+#include "common.h"
+#include "integer_codec.h"
 
 namespace oroch {
 

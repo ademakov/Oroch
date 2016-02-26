@@ -26,9 +26,9 @@
 
 #include <iterator>
 
-#include <oroch/common.h>
-#include <oroch/integer_traits.h>
-#include <oroch/zigzag.h>
+#include "common.h"
+#include "integer_traits.h"
+#include "zigzag.h"
 
 namespace oroch {
 

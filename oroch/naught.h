@@ -24,7 +24,7 @@
 #ifndef OROCH_NAUGHT_H_
 #define OROCH_NAUGHT_H_
 
-#include <oroch/common.h>
+#include "common.h"
 
 namespace oroch {
 
