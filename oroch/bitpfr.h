@@ -28,6 +28,7 @@
 
 #include <oroch/common.h>
 #include <oroch/bitpck.h>
+#include <oroch/offset.h>
 #include <oroch/origin.h>
 
 namespace oroch {
@@ -60,7 +61,7 @@ public:
 		using basic_value_codec = origin_codec<original_t>;
 
 		parameters(original_t f, size_t n, exceptions &x)
-		: basic_value_codec(f), nbits(n), mask((1ul << n) - 1), excpts(x)
+		: basic_value_codec(f), index_codec(0), nbits(n), mask((1ul << n) - 1), excpts(x)
 		{
 		}
 
@@ -75,13 +76,15 @@ public:
 		{
 			unsigned_t u = basic_value_encode(v);
 			if ((u & ~mask) != 0) {
-				excpts.indices.push_back(excpts.index);
+				size_t idx = index_codec.value_encode(excpts.index);
+				excpts.indices.push_back(idx);
 				excpts.values.push_back(u >> nbits);
 			}
 			excpts.index++;
 			return u;
 		}
 
+		offset_codec<size_t, 1, false> index_codec;
 		const size_t nbits;
 		const unsigned_t mask;
 		exceptions &excpts;
@@ -115,8 +118,9 @@ public:
 	static void
 	decode_patch(Iter dst, const parameters &params)
 	{
+		offset_codec<size_t, 1, false> index_codec(0);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {
-			size_t idx = params.excpts.indices[i];
+			size_t idx = index_codec.value_decode(params.excpts.indices[i]);
 			unsigned_t value = params.basic_value_encode(dst[idx]);
 			value |= params.excpts.values[i] << params.nbits;
 			dst[idx] = params.value_decode(value);
