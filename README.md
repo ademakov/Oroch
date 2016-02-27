@@ -2,8 +2,8 @@
 A C++ library for integer array compression.
 
 The focus of the library is uniform handling of the different integer types.
-The same interface deals with short and long, signed and unsigned types with
-the help of template programming.
+The same template-based interface deals with short and long, unsigned and
+signed types with. The sample use:
 
 ```C++
     std::array<int, 6> ints = { 1, 100, 10000, -1, -100, -10000 };
@@ -26,12 +26,25 @@ the help of template programming.
 
 ```
 
-The output of this sample code would be 
+The output of this sample code would be like this:
 
 ```
 12
 8
 ```
 
-The template mechanism provided by the library automatically applies zigzag encoding
-to the int type and only after that uses varint codec.
+The template mechanism provided by the library automatically applies zigzag
+encoding to the int type and only after that uses the varint codec. For the
+size_t type the zigzag codec is avoided.
+
+In addition to the varint codec the library also provides bit-packing codecs:
+
+* basic bit-packing codec (in <oroch/bitpck.h>),
+* bit-packing with a frame-of-reference technique (in <oroch/bitfor.h>),
+* bit-packing with a frame-of-reference and patching (in <oroch/bitpfr.h>).
+
+The best choice between theese codecs depends on the input data. The library
+provides a utility class that compares different codecs against a given input
+and selects the best. The class is defined in the <oroch/integer_codec.h>
+header. This utility has somewhat complicated interface though. An example
+of how to properly use it is provided n the <oroch/integer_group.h> header.
