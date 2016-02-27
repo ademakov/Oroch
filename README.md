@@ -3,7 +3,7 @@ A C++ library for integer array compression.
 
 The focus of the library is uniform handling of the different integer types.
 The same template-based interface deals with short and long, unsigned and
-signed types with. The sample use:
+signed types. Below is the sample of library use:
 
 ```C++
     std::array<int, 6> ints = { 1, 100, 10000, -1, -100, -10000 };
