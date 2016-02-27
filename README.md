@@ -65,11 +65,7 @@ The focus of the Oroch library is flexibility and ability to switch to other
 compression method by changing just a single line of code. It also realtively
 small compared to other libraries.
 
-If your project does not need to decode billions of intgers per second, and
+If your project does not need to decode billions of integers per second, and
 could trade this for smaller and manageable source code base, then the Oroch
 library might be for you.
-
-
-
-
 
