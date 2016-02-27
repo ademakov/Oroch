@@ -3,7 +3,7 @@ A C++ library for integer array compression.
 
 The focus of the library is uniform handling of the different integer types.
 The same template-based interface deals with short and long, unsigned and
-signed types. Below is the sample of library use:
+signed types. Below is a sample of the library use:
 
 ```C++
     std::array<int, 6> ints = { 1, 100, 10000, -1, -100, -10000 };
@@ -26,7 +26,7 @@ signed types. Below is the sample of library use:
 
 ```
 
-The output of this sample code would be like this:
+The output of this sample would be like this:
 
 ```
 12
@@ -43,7 +43,7 @@ In addition to the varint codec the library also provides bit-packing codecs:
 * bit-packing with a frame-of-reference technique (in "oroch/bitfor.h"),
 * bit-packing with a frame-of-reference and patching (in "oroch/bitpfr.h").
 
-The best choice between these codecs depends on the input data. The library
+The best choice among these codecs depends on the input data. The library
 provides a utility class that compares different codecs against a given input
 and selects the best. The class is defined in the "oroch/integer_codec.h"
 header. This utility has somewhat complicated interface though. An example
@@ -62,10 +62,9 @@ For instance, some of the libraies handle only 32-bit integers. Or implement
 a narrow set of compression algorithms.
 
 The focus of the Oroch library is flexibility and ability to switch to other
-compression method by changing just a single line of the code. It also is
+compression method by changing just a single line of the code. It is also
 realtively small compared to other libraries.
 
-If your project does not need to decode billions of integers per second, and
+If your project does not need to decode billions of integers per second and
 could trade this for smaller and more manageable source code base, then the
 Oroch library might be for you.
-
