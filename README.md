@@ -39,15 +39,15 @@ size_t type the zigzag codec is avoided.
 
 In addition to the varint codec the library also provides bit-packing codecs:
 
-* basic bit-packing codec (in <oroch/bitpck.h>),
-* bit-packing with a frame-of-reference technique (in <oroch/bitfor.h>),
-* bit-packing with a frame-of-reference and patching (in <oroch/bitpfr.h>).
+* basic bit-packing codec (in "oroch/bitpck.h"),
+* bit-packing with a frame-of-reference technique (in "oroch/bitfor.h"),
+* bit-packing with a frame-of-reference and patching (in "oroch/bitpfr.h").
 
 The best choice between theese codecs depends on the input data. The library
 provides a utility class that compares different codecs against a given input
-and selects the best. The class is defined in the <oroch/integer_codec.h>
+and selects the best. The class is defined in the "oroch/integer_codec.h"
 header. This utility has somewhat complicated interface though. An example
-of how to properly use it is provided n the <oroch/integer_group.h> header.
+of how to properly use it is provided n the "oroch/integer_group.h" header.
 
 ## Comparison
 
