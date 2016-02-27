@@ -43,7 +43,7 @@ In addition to the varint codec the library also provides bit-packing codecs:
 * bit-packing with a frame-of-reference technique (in "oroch/bitfor.h"),
 * bit-packing with a frame-of-reference and patching (in "oroch/bitpfr.h").
 
-The best choice between theese codecs depends on the input data. The library
+The best choice between these codecs depends on the input data. The library
 provides a utility class that compares different codecs against a given input
 and selects the best. The class is defined in the "oroch/integer_codec.h"
 header. This utility has somewhat complicated interface though. An example
