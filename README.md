@@ -47,7 +47,7 @@ The best choice among these codecs depends on the input data. The library
 provides a utility class that compares different codecs against a given input
 and selects the best. The class is defined in the "oroch/integer_codec.h"
 header. This utility has somewhat complicated interface though. An example
-of how to properly use it is provided n the "oroch/integer_group.h" header.
+of how to properly use it is provided in the "oroch/integer_group.h" header.
 
 ## Comparison
 
@@ -59,7 +59,7 @@ There are already many integer compression libraies available:
 It seems that these libraries are extremely good at what they do. Mostly they
 focus on the speed. To this end they limit other features and flexibility.
 For instance, some of the libraies handle only 32-bit integers. Or implement
-a narrow set of compression algorithms.
+a narrow set of compression algorithms. Or they are too big.
 
 The focus of the Oroch library is flexibility and ability to switch to other
 compression method by changing just a single line of the code. It is also
