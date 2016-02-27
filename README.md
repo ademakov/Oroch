@@ -62,10 +62,10 @@ For instance, some of the libraies handle only 32-bit integers. Or implement
 a narrow set of compression algorithms.
 
 The focus of the Oroch library is flexibility and ability to switch to other
-compression method by changing just a single line of code. It also realtively
-small compared to other libraries.
+compression method by changing just a single line of the code. It also is
+realtively small compared to other libraries.
 
 If your project does not need to decode billions of integers per second, and
-could trade this for smaller and manageable source code base, then the Oroch
-library might be for you.
+could trade this for smaller and more manageable source code base, then the
+Oroch library might be for you.
 
