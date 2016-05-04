@@ -160,7 +160,7 @@ private:
 	original_t maxvalue_ = std::numeric_limits<original_t>::min();
 
 	// The log2 histogram of values.
-	std::array<size_t, nbits> histogram_ = {};
+	std::array<size_t, nbits + 1> histogram_ = {};
 };
 
 } // namespace oroch::detail
