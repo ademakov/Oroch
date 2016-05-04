@@ -31,7 +31,7 @@
 namespace oroch {
 
 //
-// Bit-packing of integers into a sequence of 16-byte blocks with frame of
+// Bit-packing of integers into a sequence of 16-byte blocks with a frame of
 // reference. Instead of the original values the codec uses their difference
 // relative to the provided base value.
 //
