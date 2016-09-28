@@ -15,5 +15,6 @@ unit_tests_SOURCES = \
     offset.cc \
     varint.cc \
     zigzag.cc \
+    integer_array.cc \
     integer_codec.cc \
     integer_group.cc
