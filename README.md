@@ -49,6 +49,22 @@ and selects the best. The class is defined in the "oroch/integer_codec.h"
 header. This utility has somewhat complicated interface though. An example
 of how to properly use it is provided in the "oroch/integer_group.h" header.
 
+A more useful example is provided in the "oroch/integer_array.h" header. As
+might be obvious from it contains an implementation of an array of integers
+that are stored in compressed form.
+
+The implementation supports just a few methods:
+
+```C++
+#include <oroch/integer_array.h>
+...
+oroch::integer_array<int> arr;
+arr.insert(0, 100);
+arr.insert(0, 200);
+arr.get(0);
+arr.find(200);
+```
+
 ## Comparison
 
 There are already many integer compression libraies available:
