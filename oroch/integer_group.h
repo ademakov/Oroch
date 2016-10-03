@@ -43,35 +43,37 @@ public:
 
 	template<typename Iter>
 	void
-	encode(Iter begin, Iter const end)
+	encode(Iter begin, Iter const end, bool aligned = true)
 	{
 		typename codec::metadata meta;
 		codec::select(meta, begin, end);
 
-		const size_t metaspace = meta.metaspace();
-		const size_t dataoffset = (metaspace + alignment_mask) & ~alignment_mask;
+		size_t offset = meta.metaspace();
+		if (aligned)
+			offset = (offset + alignment_mask) & ~alignment_mask;
 
-		data_.reset(new byte_t[dataoffset + meta.dataspace()]);
+		data_.reset(new byte_t[offset + meta.dataspace()]);
 		dst_bytes_t meta_bytes = data_.get();
 		meta.encode(meta_bytes);
 
-		dst_bytes_t data_bytes = data_.get() + dataoffset;
+		dst_bytes_t data_bytes = data_.get() + offset;
 		codec::encode(data_bytes, begin, end, meta);
 	}
 
 	template<typename Iter>
 	void
-	decode(Iter begin, Iter const end) const
+	decode(Iter begin, Iter const end, bool aligned = true) const
 	{
 		typename codec::metadata meta;
 		src_bytes_t meta_bytes = data_.get();
 		src_bytes_t meta_start = meta_bytes;
 		meta.decode(meta_bytes);
 
-		const size_t metaspace = std::distance(meta_start, meta_bytes);
-		const size_t dataoffset = (metaspace + alignment_mask) & ~alignment_mask;
+		size_t offset = std::distance(meta_start, meta_bytes);
+		if (aligned)
+			offset = (offset + alignment_mask) & ~alignment_mask;
 
-		src_bytes_t data_bytes = data_.get() + dataoffset;
+		src_bytes_t data_bytes = data_.get() + offset;
 		codec::decode(begin, end, data_bytes, meta);
 	}
 

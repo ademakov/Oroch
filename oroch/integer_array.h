@@ -64,7 +64,7 @@ public:
 	}
 
 	original_t
-	get(size_t index) const
+	operator[](size_t index) const
 	{
 		std::array<original_t, group_size> buffer;
 		decode(buffer.begin());
@@ -158,14 +158,39 @@ class integer_array
 public:
 	using original_t = T;
 
+	bool
+	empty() const
+	{
+		return groups_.empty() && tail_.empty();
+	}
+
+	size_t
+	size() const
+	{
+		return groups_.size() * detail::group_size + tail_.size();
+	}
+
 	original_t
-	get(size_t array_index) const
+	at(size_t npos) const
 	{
 		size_t ngroups = groups_.size();
-		size_t group = array_index / detail::group_size;
-		size_t index = array_index % detail::group_size;
+		size_t group = npos / detail::group_size;
+		size_t index = npos % detail::group_size;
 		if (group > ngroups || index > tail_.size())
 			throw std::out_of_range("array index out of range");
+
+		if (group < ngroups)
+			return groups_[group][index];
+		else
+			return tail_[index];
+	}
+
+	original_t
+	operator[](size_t npos) const
+	{
+		size_t ngroups = groups_.size();
+		size_t group = npos / detail::group_size;
+		size_t index = npos % detail::group_size;
 
 		if (group < ngroups)
 			return groups_[group].get(index);
@@ -190,6 +215,13 @@ public:
 				std::distance(tail_.begin(), it));
 
 		return not_found;
+	}
+
+	void
+	clear()
+	{
+		groups_.clear();
+		tail_.clear();
 	}
 
 	void

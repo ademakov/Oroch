@@ -9,11 +9,11 @@ TEST_CASE("small integer array", "[array]") {
 	REQUIRE(array.find(0) == oroch::not_found);
 	REQUIRE(array.find(1) == oroch::not_found);
 	array.insert(0, 0);
-	REQUIRE(array.get(0) == 0);
+	REQUIRE(array.at(0) == 0);
 	REQUIRE(array.find(0) == 0);
 	array.insert(0, 1);
-	REQUIRE(array.get(0) == 1);
-	REQUIRE(array.get(1) == 0);
+	REQUIRE(array.at(0) == 1);
+	REQUIRE(array.at(1) == 0);
 	REQUIRE(array.find(0) == 1);
 	REQUIRE(array.find(1) == 0);
 }
