@@ -58,11 +58,11 @@ The implementation supports just a few methods:
 ```C++
 #include <oroch/integer_array.h>
 ...
-oroch::integer_array<int> arr;
-arr.insert(0, 100);
-arr.insert(0, 200);
-arr.get(0);
-arr.find(200);
+oroch::integer_array<int> array;
+array.insert(0, 100);
+array.insert(0, 200);
+std::cout << array.at(0) << '\n';
+std::cout << array.find(200) << '\n';
 ```
 
 ## Comparison
