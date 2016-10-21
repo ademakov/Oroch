@@ -24,13 +24,12 @@
 #ifndef OROCH_INTEGER_CODEC_H_
 #define OROCH_INTEGER_CODEC_H_
 
-#include <array>
 #include <cassert>
 #include <limits>
 #include <ostream>
-#include <vector>
 
 #include "common.h"
+#include "integer_stats.h"
 #include "integer_traits.h"
 #include "bitpck.h"
 #include "bitfor.h"
@@ -90,77 +89,6 @@ struct encoding_descriptor
 		origin = 0;
 		nbits = 0;
 	}
-};
-
-template <typename T>
-class encoding_statistics
-{
-public:
-	using original_t = T;
-	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
-
-	static constexpr size_t nbits = integer_traits<original_t>::nbits;
-
-	size_t nvalues() const { return nvalues_; }
-	size_t normalspace() const { return nvalues() * sizeof(original_t); }
-
-	original_t min() const { return minvalue_; }
-	original_t max() const { return maxvalue_; }
-
-	// Collect basic sequence info:
-	//  * the number of values;
-	//  * the minimum value;
-	//  * the maximum value.
-	template<typename Iter>
-	void
-	collect_stats(Iter src, Iter const end)
-	{
-		for (; src != end; ++src)
-			add(*src);
-	}
-
-	// Collect info for bit-length histogram of values.
-	template<typename Iter>
-	void
-	build_histogram(Iter src, Iter const end)
-	{
-		// Build the histogram.
-		for (; src != end; ++src)
-			stat(*src);
-	}
-
-	size_t histogram(std::size_t index) const {
-		return histogram_[index];
-	}
-
-private:
-	void
-	add(original_t value)
-	{
-		nvalues_++;
-		if (minvalue_ > value)
-			minvalue_ = value;
-		if (maxvalue_ < value)
-			maxvalue_ = value;
-	}
-
-	void
-	stat(original_t value)
-	{
-		unsigned_t delta = value - minvalue_;
-		size_t index = integer_traits<unsigned_t>::usedcount(delta);
-		histogram_[index]++;
-	}
-
-	// The total number of values.
-	size_t nvalues_ = 0;
-
-	// The minimum and maximum values in the sequence.
-	original_t minvalue_ = std::numeric_limits<original_t>::max();
-	original_t maxvalue_ = std::numeric_limits<original_t>::min();
-
-	// The log2 histogram of values.
-	std::array<size_t, nbits + 1> histogram_ = {};
 };
 
 } // namespace oroch::detail
@@ -320,8 +248,7 @@ public:
 		// Collect basic value statistics.
 		//
 
-		detail::encoding_statistics<original_t> vstat;
-		vstat.collect_stats(src, end);
+		integer_stats<original_t> vstat(src, end);
 
 		//
 		// Handle trivial corner cases.
@@ -499,7 +426,7 @@ private:
 	template<typename I, typename Iter>
 	static void
 	select_basic(detail::encoding_descriptor<I> &desc,
-		     const detail::encoding_statistics<I> &stat,
+		     const integer_stats<I> &stat,
 		     Iter src, Iter const end)
 	{
 		size_t dataspace, metaspace, nbits;

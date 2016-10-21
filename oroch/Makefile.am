@@ -8,6 +8,7 @@ include_HEADERS = \
     integer_array.h \
     integer_codec.h \
     integer_group.h \
+    integer_stats.h \
     integer_traits.h \
     naught.h \
     normal.h \
