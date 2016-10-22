@@ -41,9 +41,6 @@ public:
 
 	static constexpr size_t nbits = integer_traits<original_t>::nbits;
 
-	size_t nvalues() const { return nvalues_; }
-	size_t normalspace() const { return nvalues() * sizeof(original_t); }
-
 	// Collect basic sequence info:
 	//  * the number of values;
 	//  * the minimum value;
@@ -55,8 +52,13 @@ public:
 			add(*src);
 	}
 
+	size_t nvalues() const { return nvalues_; }
 	original_t min() const { return minvalue_; }
 	original_t max() const { return maxvalue_; }
+
+	size_t original_space() const {
+		return nvalues() * sizeof(original_t);
+	}
 
 	// Collect info for bit-length histogram of values.
 	template<typename Iter>

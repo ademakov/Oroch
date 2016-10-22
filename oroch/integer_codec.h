@@ -436,7 +436,7 @@ private:
 		//
 
 		desc.encoding = encoding_t::normal;
-		desc.dataspace = stat.normalspace();
+		desc.dataspace = stat.original_space();
 
 		//
 		// Compare it against the bit-packed encoding.
