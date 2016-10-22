@@ -63,37 +63,73 @@ struct integer_builtins
 {
 };
 
-template<>
+template <>
 struct integer_builtins<int>
 {
 	using unsigned_t = unsigned int;
 
-	static int ffs(unsigned_t value) { return __builtin_ffs(value); }
-	static int clz(unsigned_t value) { return __builtin_clz(value); }
-	static int ctz(unsigned_t value) { return __builtin_ctz(value); }
-	static int popcount(unsigned_t value) { return __builtin_popcount(value); }
+	static int ffs(unsigned_t value)
+	{
+		return __builtin_ffs(value);
+	}
+	static int clz(unsigned_t value)
+	{
+		return __builtin_clz(value);
+	}
+	static int ctz(unsigned_t value)
+	{
+		return __builtin_ctz(value);
+	}
+	static int popcount(unsigned_t value)
+	{
+		return __builtin_popcount(value);
+	}
 };
 
-template<>
+template <>
 struct integer_builtins<long int>
 {
 	using unsigned_t = unsigned long int;
 
-	static int ffs(unsigned_t value) { return __builtin_ffsl(value); }
-	static int clz(unsigned_t value) { return __builtin_clzl(value); }
-	static int ctz(unsigned_t value) { return __builtin_ctzl(value); }
-	static int popcount(unsigned_t value) { return __builtin_popcountl(value); }
+	static int ffs(unsigned_t value)
+	{
+		return __builtin_ffsl(value);
+	}
+	static int clz(unsigned_t value)
+	{
+		return __builtin_clzl(value);
+	}
+	static int ctz(unsigned_t value)
+	{
+		return __builtin_ctzl(value);
+	}
+	static int popcount(unsigned_t value)
+	{
+		return __builtin_popcountl(value);
+	}
 };
 
-template<>
+template <>
 struct integer_builtins<long long int>
 {
 	using unsigned_t = unsigned long long int;
 
-	static int ffs(unsigned_t value) { return __builtin_ffsll(value); }
-	static int clz(unsigned_t value) { return __builtin_clzll(value); }
-	static int ctz(unsigned_t value) { return __builtin_ctzll(value); }
-	static int popcount(unsigned_t value) { return __builtin_popcountll(value); }
+	static int ffs(unsigned_t value)
+	{
+		return __builtin_ffsll(value);
+	}
+	static int clz(unsigned_t value)
+	{
+		return __builtin_clzll(value);
+	}
+	static int ctz(unsigned_t value)
+	{
+		return __builtin_ctzll(value);
+	}
+	static int popcount(unsigned_t value)
+	{
+		return __builtin_popcountll(value);
+	}
 };
 
 template <typename T>

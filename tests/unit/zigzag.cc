@@ -6,7 +6,8 @@
 using zigzag32 = oroch::zigzag_codec<int32_t>;
 using zigzag64 = oroch::zigzag_codec<int64_t>;
 
-TEST_CASE("zigzag codec for int32_t", "[zigzag]") {
+TEST_CASE("zigzag codec for int32_t", "[zigzag]")
+{
 	REQUIRE(zigzag32::encode(0) == 0);
 	REQUIRE(zigzag32::encode(-1) == 1);
 	REQUIRE(zigzag32::encode(1) == 2);
@@ -14,7 +15,11 @@ TEST_CASE("zigzag codec for int32_t", "[zigzag]") {
 	REQUIRE(zigzag32::encode(2) == 4);
 
 	static std::array<int32_t, 9> values = {{
-		0, -1, 1, -2, 2,
+		0,
+		-1,
+		1,
+		-2,
+		2,
 		std::numeric_limits<std::int32_t>::max() - 1,
 		std::numeric_limits<std::int32_t>::min() + 1,
 		std::numeric_limits<std::int32_t>::max(),
@@ -28,7 +33,8 @@ TEST_CASE("zigzag codec for int32_t", "[zigzag]") {
 	}
 }
 
-TEST_CASE("zigzag codec for int64_t", "[zigzag]") {
+TEST_CASE("zigzag codec for int64_t", "[zigzag]")
+{
 	REQUIRE(zigzag64::encode(0) == 0);
 	REQUIRE(zigzag64::encode(-1) == 1);
 	REQUIRE(zigzag64::encode(1) == 2);
@@ -36,7 +42,11 @@ TEST_CASE("zigzag codec for int64_t", "[zigzag]") {
 	REQUIRE(zigzag64::encode(2) == 4);
 
 	static std::array<int64_t, 13> values = {{
-		0, -1, 1, -2, 2,
+		0,
+		-1,
+		1,
+		-2,
+		2,
 		std::numeric_limits<std::int32_t>::max() - 1,
 		std::numeric_limits<std::int32_t>::min() + 1,
 		std::numeric_limits<std::int32_t>::max(),
@@ -54,7 +64,8 @@ TEST_CASE("zigzag codec for int64_t", "[zigzag]") {
 	}
 }
 
-TEST_CASE("zigzag codec conditional methods", "[zigzag]") {
+TEST_CASE("zigzag codec conditional methods", "[zigzag]")
+{
 	REQUIRE(oroch::zigzag_codec<int32_t>().encode_if_signed(1) == 2);
 	REQUIRE(oroch::zigzag_codec<uint32_t>().encode_if_signed(1) == 1);
 	REQUIRE(oroch::zigzag_codec<int32_t>().decode_if_signed(2) == 1);

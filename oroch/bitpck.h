@@ -39,7 +39,7 @@ namespace oroch {
 // By default the codec applies zigzag encoding if used on signed types.
 // This can be replaced by supplying a different value code explicitly.
 //
-template<typename T, typename V = zigzag_codec<T>>
+template <typename T, typename V = zigzag_codec<T>>
 class bitpck_codec
 {
 public:
@@ -51,31 +51,31 @@ public:
 
 	// Get the number of integers with a given width that fits into
 	// a single block.
-	static constexpr size_t
-	capacity(size_t nbits)
+	static constexpr size_t capacity(size_t nbits)
 	{
 		return block_nbits / nbits;
 	}
 
 	// Get the number of blocks required to fit a given number of
 	// integers.
-	static constexpr size_t
-	block_number(size_t nvalues, size_t nbits)
+	static constexpr size_t block_number(size_t nvalues, size_t nbits)
 	{
 		return (nvalues + capacity(nbits) - 1) / capacity(nbits);
 	}
 
 	// Get the number of bytes required to fit a given number of
 	// integers.
-	static constexpr size_t
-	space(size_t nvalues, size_t nbits)
+	static constexpr size_t space(size_t nvalues, size_t nbits)
 	{
 		return block_size * block_number(nvalues, nbits);
 	}
 
-	template<typename Iter>
-	static void
-	block_encode(dst_bytes_t &dst, Iter &src, Iter const end, const size_t nbits, value_codec &vcodec)
+	template <typename Iter>
+	static void block_encode(dst_bytes_t &dst,
+				 Iter &src,
+				 Iter const end,
+				 const size_t nbits,
+				 value_codec &vcodec)
 	{
 		const size_t c = capacity(nbits);
 		const uint64_t mask = uint64_t(int64_t(-1)) >> (64 - nbits);
@@ -127,9 +127,12 @@ public:
 		dst += block_size;
 	}
 
-	template<typename Iter>
-	static void
-	block_decode(Iter dst, Iter const end, src_bytes_t &src, const size_t nbits, value_codec &vcodec)
+	template <typename Iter>
+	static void block_decode(Iter dst,
+				 Iter const end,
+				 src_bytes_t &src,
+				 const size_t nbits,
+				 value_codec &vcodec)
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 		uint64_t u = block[0];
@@ -165,7 +168,7 @@ public:
 		}
 	}
 
-	template<typename Iter>
+	template <typename Iter>
 	static void
 	block_decode(Iter dst, src_bytes_t &src, const size_t nbits, value_codec &vcodec)
 	{
@@ -197,8 +200,10 @@ public:
 		}
 	}
 
-	static original_t
-	block_fetch(src_bytes_t src, const size_t index, const size_t nbits, value_codec &vcodec)
+	static original_t block_fetch(src_bytes_t src,
+				      const size_t index,
+				      const size_t nbits,
+				      value_codec &vcodec)
 	{
 		const uint64_t *block = reinterpret_cast<const uint64_t *>(src);
 
@@ -219,17 +224,23 @@ public:
 		return vcodec.value_decode(x & mask);
 	}
 
-	template<typename Iter>
-	static void
-	encode(dst_bytes_t &dst, Iter src, Iter end, size_t nbits, value_codec vcodec = value_codec())
+	template <typename Iter>
+	static void encode(dst_bytes_t &dst,
+			   Iter src,
+			   Iter end,
+			   size_t nbits,
+			   value_codec vcodec = value_codec())
 	{
 		while (src < end)
 			block_encode(dst, src, end, nbits, vcodec);
 	}
 
-	template<typename Iter>
-	static void
-	decode(Iter dst, Iter end, src_bytes_t &src, size_t nbits, value_codec vcodec = value_codec())
+	template <typename Iter>
+	static void decode(Iter dst,
+			   Iter end,
+			   src_bytes_t &src,
+			   size_t nbits,
+			   value_codec vcodec = value_codec())
 	{
 		size_t c = capacity(nbits);
 		for (;;) {
@@ -244,8 +255,10 @@ public:
 		}
 	}
 
-	static original_t
-	fetch(src_bytes_t src, const size_t index, const size_t nbits, value_codec vcodec = value_codec())
+	static original_t fetch(src_bytes_t src,
+				const size_t index,
+				const size_t nbits,
+				value_codec vcodec = value_codec())
 	{
 		size_t c = capacity(nbits);
 		src += (index / c) * block_size;

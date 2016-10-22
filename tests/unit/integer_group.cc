@@ -5,7 +5,8 @@
 
 #define INTS 8
 
-TEST_CASE("integer group", "[group]") {
+TEST_CASE("integer group", "[group]")
+{
 	oroch::integer_group<uint32_t> group;
 	std::array<uint32_t, INTS> integers;
 	std::array<uint32_t, INTS> integers2;

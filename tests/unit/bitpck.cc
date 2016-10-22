@@ -6,7 +6,8 @@
 #define BITS 7
 #define INTS 128
 
-TEST_CASE("bitpck codec for unsigned values", "[bitpck]") {
+TEST_CASE("bitpck codec for unsigned values", "[bitpck]")
+{
 	using codec = oroch::bitpck_codec<uint32_t>;
 	std::array<uint8_t, codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
@@ -29,7 +30,8 @@ TEST_CASE("bitpck codec for unsigned values", "[bitpck]") {
 	}
 }
 
-TEST_CASE("bitpck codec for signed values", "[bitpck]") {
+TEST_CASE("bitpck codec for signed values", "[bitpck]")
+{
 	using codec = oroch::bitpck_codec<int32_t>;
 	std::array<uint8_t, codec::space(INTS, BITS)> bytes;
 	std::array<int32_t, INTS> integers;
@@ -52,7 +54,8 @@ TEST_CASE("bitpck codec for signed values", "[bitpck]") {
 	}
 }
 
-TEST_CASE("bitpck codec fetch", "[bitpck]") {
+TEST_CASE("bitpck codec fetch", "[bitpck]")
+{
 	using codec = oroch::bitpck_codec<uint64_t>;
 	std::array<uint8_t, codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
@@ -67,4 +70,3 @@ TEST_CASE("bitpck codec fetch", "[bitpck]") {
 	for (int i = 0; i < INTS; i++)
 		REQUIRE(codec::fetch(bytes.begin(), i, BITS) == i);
 }
-

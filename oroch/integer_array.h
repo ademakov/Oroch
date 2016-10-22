@@ -51,28 +51,24 @@ public:
 	using original_t = typename super::original_t;
 	using codec = typename super::codec;
 
-	void
-	encode(const original_t *buffer)
+	void encode(const original_t *buffer)
 	{
 		super::encode(buffer, buffer + group_size);
 	}
 
-	void
-	decode(original_t *buffer) const
+	void decode(original_t *buffer) const
 	{
 		super::decode(buffer, buffer + group_size);
 	}
 
-	original_t
-	operator[](size_t index) const
+	original_t operator[](size_t index) const
 	{
 		std::array<original_t, group_size> buffer;
 		decode(buffer.begin());
 		return buffer[index];
 	}
 
-	size_t
-	find(original_t value) const
+	size_t find(original_t value) const
 	{
 		size_t nbits;
 
@@ -113,14 +109,14 @@ public:
 
 		case encoding_t::bitpck:
 			nbits = integer_traits<original_t>::usedcount(
-					zigzag_codec<original_t>::encode_if_signed(value));
+				zigzag_codec<original_t>::encode_if_signed(value));
 			if (nbits > meta.value_desc.nbits)
 				return not_found;
 			break;
 
 		case encoding_t::bitfor:
-			nbits = integer_traits<original_t>::usedcount(
-					value - meta.value_desc.origin);
+			nbits = integer_traits<original_t>::usedcount(value
+								      - meta.value_desc.origin);
 			if (nbits > meta.value_desc.nbits)
 				return not_found;
 			break;
@@ -139,8 +135,7 @@ public:
 		return not_found;
 	}
 
-	void
-	info(std::ostream &os)
+	void info(std::ostream &os)
 	{
 		typename codec::metadata meta;
 		meta.clear();
@@ -158,20 +153,17 @@ class integer_array
 public:
 	using original_t = T;
 
-	bool
-	empty() const
+	bool empty() const
 	{
 		return groups_.empty() && tail_.empty();
 	}
 
-	size_t
-	size() const
+	size_t size() const
 	{
 		return groups_.size() * detail::group_size + tail_.size();
 	}
 
-	original_t
-	at(size_t npos) const
+	original_t at(size_t npos) const
 	{
 		size_t ngroups = groups_.size();
 		size_t group = npos / detail::group_size;
@@ -185,8 +177,7 @@ public:
 			return tail_[index];
 	}
 
-	original_t
-	operator[](size_t npos) const
+	original_t operator[](size_t npos) const
 	{
 		size_t ngroups = groups_.size();
 		size_t group = npos / detail::group_size;
@@ -198,8 +189,7 @@ public:
 			return tail_[index];
 	}
 
-	size_t
-	find(original_t value) const
+	size_t find(original_t value) const
 	{
 		size_t ngroups = groups_.size();
 
@@ -211,21 +201,19 @@ public:
 
 		auto it = std::find(tail_.begin(), tail_.end(), value);
 		if (it != tail_.end())
-			return (ngroups * detail::group_size +
-				std::distance(tail_.begin(), it));
+			return (ngroups * detail::group_size
+				+ std::distance(tail_.begin(), it));
 
 		return not_found;
 	}
 
-	void
-	clear()
+	void clear()
 	{
 		groups_.clear();
 		tail_.clear();
 	}
 
-	void
-	insert(size_t array_index, original_t value)
+	void insert(size_t array_index, original_t value)
 	{
 		size_t ngroups = groups_.size();
 		size_t group = array_index / detail::group_size;
@@ -256,8 +244,7 @@ public:
 		}
 	}
 
-	void
-	group_info(std::ostream &ostream)
+	void group_info(std::ostream &ostream)
 	{
 		size_t ngroups = groups_.size();
 		for (size_t group = 0; group < ngroups; group++)

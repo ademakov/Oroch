@@ -35,7 +35,7 @@ namespace oroch {
 //
 // https://developers.google.com/protocol-buffers/docs/encoding
 //
-template<typename T>
+template <typename T>
 struct zigzag_codec
 {
 	using original_t = T;
@@ -44,58 +44,50 @@ struct zigzag_codec
 
 	static constexpr int sign_shift = integer_traits<signed_t>::nbits - 1;
 
-	static unsigned_t
-	encode(signed_t s)
+	static unsigned_t encode(signed_t s)
 	{
 		return (s << 1) ^ (s >> sign_shift);
 	}
 
-	static signed_t
-	decode(unsigned_t u)
+	static signed_t decode(unsigned_t u)
 	{
-		return (u >> 1) ^ -((signed_t) (u & 1));
+		return (u >> 1) ^ -((signed_t)(u & 1));
 	}
 
-	template<typename S = original_t,
-		 typename std::enable_if<std::is_signed<S>::value>::type* = nullptr>
-	static unsigned_t
-	encode_if_signed(original_t v)
+	template <typename S = original_t,
+		  typename std::enable_if<std::is_signed<S>::value>::type * = nullptr>
+	static unsigned_t encode_if_signed(original_t v)
 	{
 		return encode(v);
 	}
 
-	template<typename S = original_t,
-		 typename std::enable_if<std::is_unsigned<S>::value>::type* = nullptr>
-	static unsigned_t
-	encode_if_signed(original_t v)
+	template <typename S = original_t,
+		  typename std::enable_if<std::is_unsigned<S>::value>::type * = nullptr>
+	static unsigned_t encode_if_signed(original_t v)
 	{
 		return v;
 	}
 
-	template<typename S = original_t,
-		 typename std::enable_if<std::is_signed<S>::value>::type* = nullptr>
-	static original_t
-	decode_if_signed(unsigned_t v)
+	template <typename S = original_t,
+		  typename std::enable_if<std::is_signed<S>::value>::type * = nullptr>
+	static original_t decode_if_signed(unsigned_t v)
 	{
 		return decode(v);
 	}
 
-	template<typename S = original_t,
-		 typename std::enable_if<std::is_unsigned<S>::value>::type* = nullptr>
-	static original_t
-	decode_if_signed(unsigned_t v)
+	template <typename S = original_t,
+		  typename std::enable_if<std::is_unsigned<S>::value>::type * = nullptr>
+	static original_t decode_if_signed(unsigned_t v)
 	{
 		return v;
 	}
 
-	unsigned_t
-	value_encode(original_t v) const
+	unsigned_t value_encode(original_t v) const
 	{
 		return encode_if_signed(v);
 	}
 
-	original_t
-	value_decode(unsigned_t v) const
+	original_t value_decode(unsigned_t v) const
 	{
 		return decode_if_signed(v);
 	}

@@ -41,9 +41,8 @@ public:
 	static constexpr size_t alignment = 8;
 	static constexpr size_t alignment_mask = alignment - 1;
 
-	template<typename Iter>
-	void
-	encode(Iter begin, Iter const end, bool aligned = true)
+	template <typename Iter>
+	void encode(Iter begin, Iter const end, bool aligned = true)
 	{
 		typename codec::metadata meta;
 		codec::select(meta, begin, end);
@@ -60,9 +59,8 @@ public:
 		codec::encode(data_bytes, begin, end, meta);
 	}
 
-	template<typename Iter>
-	void
-	decode(Iter begin, Iter const end, bool aligned = true) const
+	template <typename Iter>
+	void decode(Iter begin, Iter const end, bool aligned = true) const
 	{
 		typename codec::metadata meta;
 		src_bytes_t meta_bytes = data_.get();
@@ -77,8 +75,7 @@ public:
 		codec::decode(begin, end, data_bytes, meta);
 	}
 
-	void
-	decode(typename codec::metadata& meta) const
+	void decode(typename codec::metadata &meta) const
 	{
 		src_bytes_t meta_bytes = data_.get();
 		meta.decode(meta_bytes);

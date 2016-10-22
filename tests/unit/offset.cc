@@ -2,7 +2,8 @@
 
 #include <oroch/offset.h>
 
-TEST_CASE("offset value codec", "[offset]") {
+TEST_CASE("offset value codec", "[offset]")
+{
 	using codec_0 = oroch::offset_codec<int32_t, 1, false>;
 	using codec_1 = oroch::offset_codec<int32_t, 1, true>;
 

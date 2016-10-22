@@ -1,12 +1,12 @@
-#include <cstdlib>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
 #include <oroch/integer_group.h>
 
-#define SIZE	1000
-#define REPEAT	1000000
+#define SIZE 1000
+#define REPEAT 1000000
 
 static std::vector<int> v, v2;
 static oroch::integer_group<int> g;

@@ -28,21 +28,19 @@
 
 namespace oroch {
 
-template<typename T>
+template <typename T>
 class naught_codec
 {
 public:
 	using original_t = T;
 
-	template<typename Iter>
-	static void
-	encode(dst_bytes_t &, Iter, Iter)
+	template <typename Iter>
+	static void encode(dst_bytes_t &, Iter, Iter)
 	{
 	}
 
-	template<typename Iter>
-	static void
-	decode(Iter dst, Iter end, src_bytes_t &, original_t value = 0)
+	template <typename Iter>
+	static void decode(Iter dst, Iter end, src_bytes_t &, original_t value = 0)
 	{
 		while (dst < end)
 			*dst++ = value;

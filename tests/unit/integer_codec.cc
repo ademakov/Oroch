@@ -5,7 +5,8 @@
 
 #define INTS 128
 
-TEST_CASE("integer codec", "[codec]") {
+TEST_CASE("integer codec", "[codec]")
+{
 	using codec = oroch::integer_codec<uint32_t>;
 	std::array<uint32_t, INTS> integers;
 	std::array<uint32_t, INTS> integers2;
@@ -19,11 +20,14 @@ TEST_CASE("integer codec", "[codec]") {
 		codec::metadata meta;
 		codec::select(meta, i_it, i_end);
 
-		INFO("encoding: " << (int) meta.value_desc.encoding <<
-		     ", space: " << meta.value_desc.dataspace <<
-		     ", origin: " <<  meta.value_desc.origin <<
-		     ", nbits: " << meta.value_desc.nbits <<
-		     ", size: " << n);
+		INFO("encoding: " << (int) meta.value_desc.encoding << ", space: "
+				  << meta.value_desc.dataspace
+				  << ", origin: "
+				  << meta.value_desc.origin
+				  << ", nbits: "
+				  << meta.value_desc.nbits
+				  << ", size: "
+				  << n);
 
 		std::vector<uint8_t> bytes(meta.dataspace());
 		oroch::dst_bytes_t d_it = bytes.data();
@@ -38,17 +42,18 @@ TEST_CASE("integer codec", "[codec]") {
 	}
 }
 
-TEST_CASE("integer codec metadata", "[codec]") {
+TEST_CASE("integer codec metadata", "[codec]")
+{
 	using codec = oroch::integer_codec<uint32_t>;
-	std::array<uint32_t, 4> integers {{ 100, 101, 102, 103 }};
+	std::array<uint32_t, 4> integers{{100, 101, 102, 103}};
 	codec::metadata meta;
 	codec::metadata meta2;
 
 	auto i_it = integers.begin();
 	codec::select(meta, i_it, integers.end());
 	std::vector<uint8_t> bytes(meta.metaspace());
-	INFO("encoding: " << (int) meta.value_desc.encoding <<
-	     ", mataspace: " << meta.value_desc.metaspace);
+	INFO("encoding: " << (int) meta.value_desc.encoding << ", mataspace: "
+			  << meta.value_desc.metaspace);
 
 	oroch::dst_bytes_t d_it = bytes.data();
 	meta.encode(d_it);

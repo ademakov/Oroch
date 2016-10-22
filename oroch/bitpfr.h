@@ -26,14 +26,14 @@
 
 #include <vector>
 
-#include "common.h"
 #include "bitpck.h"
+#include "common.h"
 #include "offset.h"
 #include "origin.h"
 
 namespace oroch {
 
-template<typename T>
+template <typename T>
 class bitpfr_codec
 {
 public:
@@ -47,7 +47,8 @@ public:
 
 		size_t index = 0;
 
-		void reset() {
+		void reset()
+		{
 			indices.clear();
 			values.clear();
 
@@ -61,18 +62,17 @@ public:
 		using basic_value_codec = origin_codec<original_t>;
 
 		parameters(original_t f, size_t n, exceptions &x)
-		: basic_value_codec(f), index_codec(0), nbits(n), mask((1ul << n) - 1), excpts(x)
+			: basic_value_codec(f), index_codec(0), nbits(n), mask((1ul << n) - 1),
+			  excpts(x)
 		{
 		}
 
-		unsigned_t
-		basic_value_encode(original_t v) const
+		unsigned_t basic_value_encode(original_t v) const
 		{
 			return basic_value_codec::value_encode(v);
 		}
 
-		unsigned_t
-		value_encode(original_t v)
+		unsigned_t value_encode(original_t v)
 		{
 			unsigned_t u = basic_value_encode(v);
 			if ((u & ~mask) != 0) {
@@ -92,31 +92,27 @@ public:
 
 	using basic_codec = bitpck_codec<original_t, parameters>;
 
-	template<typename Iter>
-	static void
-	encode(dst_bytes_t &dst, Iter src, Iter end, parameters &params)
+	template <typename Iter>
+	static void encode(dst_bytes_t &dst, Iter src, Iter end, parameters &params)
 	{
 		basic_codec::encode(dst, src, end, params.nbits, params);
 	}
 
-	template<typename Iter>
-	static void
-	decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
+	template <typename Iter>
+	static void decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
 	{
 		decode_basic(dst, end, src, params);
 		decode_patch(dst, params);
 	}
 
-	template<typename Iter>
-	static void
-	decode_basic(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
+	template <typename Iter>
+	static void decode_basic(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
 	{
 		basic_codec::decode(dst, end, src, params.nbits, params);
 	}
 
-	template<typename Iter>
-	static void
-	decode_patch(Iter dst, const parameters &params)
+	template <typename Iter>
+	static void decode_patch(Iter dst, const parameters &params)
 	{
 		offset_codec<size_t, 1, false> index_codec(0);
 		for (size_t i = 0; i < params.excpts.indices.size(); i++) {

@@ -1,5 +1,5 @@
-#include <cstdlib>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -45,10 +45,8 @@ test(const std::string &title, void (*func)(int x), size_t result[2])
 
 	auto finish = std::chrono::high_resolution_clock::now();
 	auto time = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start);
-	std::cout << title << ": " << time.count()
-		  << ", found: " << result[0]
-		  << ", not found: " << result[1]
-		  << std::endl;
+	std::cout << title << ": " << time.count() << ", found: " << result[0]
+		  << ", not found: " << result[1] << std::endl;
 }
 
 int
@@ -57,7 +55,7 @@ main()
 	for (int i = 0; i < SIZE; i++)
 		v.push_back(i - 100);
 
-	for(int i = 0; i < SIZE; i++)
+	for (int i = 0; i < SIZE; i++)
 		o.insert(i, v[i]);
 	o.group_info(std::cout);
 

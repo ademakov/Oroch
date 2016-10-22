@@ -6,14 +6,13 @@
 
 #include <oroch/bitpck.h>
 
-TEST_CASE("bitblk codec for small values", "[bitblk]") {
+TEST_CASE("bitblk codec for small values", "[bitblk]")
+{
 	using codec = oroch::bitpck_codec<uint32_t>;
 	codec::value_codec value_codec;
 
 	std::array<uint8_t, 16> bytes;
-	std::array<uint32_t, 10> integers {{
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-	}};
+	std::array<uint32_t, 10> integers{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
 	std::array<uint32_t, 10> integers2;
 
 	oroch::dst_bytes_t d_it = bytes.begin();
@@ -61,12 +60,13 @@ TEST_CASE("bitblk codec for small values", "[bitblk]") {
 	}
 }
 
-TEST_CASE("bitblk codec for large values", "[bitblk]") {
+TEST_CASE("bitblk codec for large values", "[bitblk]")
+{
 	using codec = oroch::bitpck_codec<uint32_t>;
 	codec::value_codec value_codec;
 
 	std::array<uint8_t, 16> bytes;
-	std::array<uint32_t, 4> integers {{
+	std::array<uint32_t, 4> integers{{
 		0x000aa000, 0xfff66fff, 0x1248abcd, 0x01020408,
 	}};
 	std::array<uint32_t, 4> integers2;
@@ -116,7 +116,8 @@ TEST_CASE("bitblk codec for large values", "[bitblk]") {
 	}
 }
 
-TEST_CASE("bitblk codec fetch", "[bitblk]") {
+TEST_CASE("bitblk codec fetch", "[bitblk]")
+{
 	using codec = oroch::bitpck_codec<uint64_t>;
 	codec::value_codec value_codec;
 

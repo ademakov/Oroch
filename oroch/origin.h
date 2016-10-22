@@ -32,23 +32,23 @@ namespace oroch {
 // Encoding of a value as a difference relative to a given origin
 // (frame of reference).
 //
-template<typename T>
+template <typename T>
 class origin_codec
 {
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 
-	origin_codec(original_t origin) : origin_{origin} {}
+	origin_codec(original_t origin) : origin_{origin}
+	{
+	}
 
-	unsigned_t
-	value_encode(original_t v) const
+	unsigned_t value_encode(original_t v) const
 	{
 		return unsigned_t(v - origin_);
 	}
 
-	original_t
-	value_decode(unsigned_t v) const
+	original_t value_decode(unsigned_t v) const
 	{
 		return original_t(v + origin_);
 	}

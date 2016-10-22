@@ -4,7 +4,8 @@
 
 using int32_array = oroch::integer_array<int32_t>;
 
-TEST_CASE("small integer array", "[array]") {
+TEST_CASE("small integer array", "[array]")
+{
 	int32_array array;
 	REQUIRE(array.find(0) == oroch::not_found);
 	REQUIRE(array.find(1) == oroch::not_found);
@@ -18,7 +19,8 @@ TEST_CASE("small integer array", "[array]") {
 	REQUIRE(array.find(1) == 0);
 }
 
-TEST_CASE("large integer array", "[array]") {
+TEST_CASE("large integer array", "[array]")
+{
 	const size_t n = 100000;
 	int32_array array;
 	for (size_t i = 0; i < n; i++)

@@ -32,9 +32,9 @@ typedef unsigned char byte_t;
 
 typedef signed char signed_byte_t;
 
-typedef byte_t * dst_bytes_t;
+typedef byte_t *dst_bytes_t;
 
-typedef const byte_t * src_bytes_t;
+typedef const byte_t *src_bytes_t;
 
 } // namespace oroch
 

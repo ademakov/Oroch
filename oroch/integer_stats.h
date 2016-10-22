@@ -45,38 +45,47 @@ public:
 	//  * the number of values;
 	//  * the minimum value;
 	//  * the maximum value.
-	template<typename Iter>
+	template <typename Iter>
 	integer_stats(Iter src, Iter const end)
 	{
 		for (; src != end; ++src)
 			add(*src);
 	}
 
-	size_t nvalues() const { return nvalues_; }
-	original_t min() const { return minvalue_; }
-	original_t max() const { return maxvalue_; }
+	size_t nvalues() const
+	{
+		return nvalues_;
+	}
+	original_t min() const
+	{
+		return minvalue_;
+	}
+	original_t max() const
+	{
+		return maxvalue_;
+	}
 
-	size_t original_space() const {
+	size_t original_space() const
+	{
 		return nvalues() * sizeof(original_t);
 	}
 
 	// Collect info for bit-length histogram of values.
-	template<typename Iter>
-	void
-	build_histogram(Iter src, Iter const end)
+	template <typename Iter>
+	void build_histogram(Iter src, Iter const end)
 	{
 		// Build the histogram.
 		for (; src != end; ++src)
 			stat(*src);
 	}
 
-	size_t histogram(std::size_t index) const {
+	size_t histogram(std::size_t index) const
+	{
 		return histogram_[index];
 	}
 
 private:
-	void
-	add(original_t value)
+	void add(original_t value)
 	{
 		nvalues_++;
 		if (minvalue_ > value)
@@ -85,8 +94,7 @@ private:
 			maxvalue_ = value;
 	}
 
-	void
-	stat(original_t value)
+	void stat(original_t value)
 	{
 		unsigned_t delta = value - minvalue_;
 		size_t index = integer_traits<unsigned_t>::usedcount(delta);

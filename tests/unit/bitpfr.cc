@@ -3,14 +3,15 @@
 #include <array>
 #include <oroch/bitpfr.h>
 
-#define BITS	7
-#define SMALL	128
-#define LARGE	24
-#define INTS	(SMALL + LARGE)
+#define BITS 7
+#define SMALL 128
+#define LARGE 24
+#define INTS (SMALL + LARGE)
 
-#define FREF	1000
+#define FREF 1000
 
-TEST_CASE("bitpfr value codec", "[bitpfr]") {
+TEST_CASE("bitpfr value codec", "[bitpfr]")
+{
 	using codec = oroch::bitpfr_codec<uint32_t>;
 	codec::exceptions excpts;
 	codec::parameters params(FREF, BITS, excpts);
@@ -28,7 +29,8 @@ TEST_CASE("bitpfr value codec", "[bitpfr]") {
 	REQUIRE(excpts.values[0] == 1);
 }
 
-TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]") {
+TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]")
+{
 	using codec = oroch::bitpfr_codec<uint32_t>;
 	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<uint32_t, INTS> integers;
@@ -58,7 +60,8 @@ TEST_CASE("bitpfr codec for unsigned values", "[bitpfr]") {
 	}
 }
 
-TEST_CASE("bitpfr codec for signed values", "[bitpfr]") {
+TEST_CASE("bitpfr codec for signed values", "[bitpfr]")
+{
 	using codec = oroch::bitpfr_codec<int32_t>;
 	std::array<uint8_t, codec::basic_codec::space(INTS, BITS)> bytes;
 	std::array<int32_t, INTS> integers;

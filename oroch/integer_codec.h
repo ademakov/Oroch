@@ -28,12 +28,12 @@
 #include <limits>
 #include <ostream>
 
+#include "bitfor.h"
+#include "bitpck.h"
+#include "bitpfr.h"
 #include "common.h"
 #include "integer_stats.h"
 #include "integer_traits.h"
-#include "bitpck.h"
-#include "bitfor.h"
-#include "bitpfr.h"
 #include "naught.h"
 #include "normal.h"
 #include "offset.h"
@@ -80,8 +80,7 @@ struct encoding_descriptor
 		clear();
 	}
 
-	void
-	clear()
+	void clear()
 	{
 		encoding = encoding_t::normal;
 		dataspace = 0;
@@ -107,20 +106,17 @@ struct encoding_metadata
 	detail::encoding_descriptor<size_t> outlier_index_desc;
 	detail::encoding_descriptor<unsigned_t> outlier_value_desc;
 
-	size_t
-	dataspace() const
+	size_t dataspace() const
 	{
 		return value_desc.dataspace;
 	}
 
-	size_t
-	metaspace() const
+	size_t metaspace() const
 	{
 		return 1 + value_desc.metaspace;
 	}
 
-	void
-	clear()
+	void clear()
 	{
 		value_desc.clear();
 
@@ -129,9 +125,9 @@ struct encoding_metadata
 		outlier_value_desc.clear();
 	}
 
-	template<typename integer_t>
-	void
-	encode_basic(dst_bytes_t &dst, const detail::encoding_descriptor<integer_t> &desc) const
+	template <typename integer_t>
+	void encode_basic(dst_bytes_t &dst,
+			  const detail::encoding_descriptor<integer_t> &desc) const
 	{
 		encoding_t encoding = desc.encoding;
 		*dst++ = encoding;
@@ -147,16 +143,15 @@ struct encoding_metadata
 		case encoding_t::bitpfr:
 		case encoding_t::bitfor:
 			varint_codec<integer_t>::value_encode(dst, desc.origin);
-			// no break at the end of case
+		// no break at the end of case
 		case encoding_t::bitpck:
 			*dst++ = desc.nbits;
 			break;
 		}
 	}
 
-	template<typename integer_t>
-	void
-	decode_basic(src_bytes_t &src, detail::encoding_descriptor<integer_t> &desc)
+	template <typename integer_t>
+	void decode_basic(src_bytes_t &src, detail::encoding_descriptor<integer_t> &desc)
 	{
 		encoding_t encoding = static_cast<encoding_t>(*src++);
 		desc.encoding = encoding;
@@ -172,23 +167,22 @@ struct encoding_metadata
 		case encoding_t::bitpfr:
 		case encoding_t::bitfor:
 			varint_codec<integer_t>::value_decode(desc.origin, src);
-			// no break at the end of case
+		// no break at the end of case
 		case encoding_t::bitpck:
 			desc.nbits = *src++;
 			break;
 		}
 	}
 
-	template<typename integer_t>
-	void
-	encode_extra(dst_bytes_t &dst, const detail::encoding_descriptor<integer_t> &desc) const
+	template <typename integer_t>
+	void encode_extra(dst_bytes_t &dst,
+			  const detail::encoding_descriptor<integer_t> &desc) const
 	{
 		*dst++ = desc.encoding == encoding_t::bitpck ? desc.nbits : 0;
 	}
 
-	template<typename integer_t>
-	void
-	decode_extra(src_bytes_t &src, detail::encoding_descriptor<integer_t> &desc)
+	template <typename integer_t>
+	void decode_extra(src_bytes_t &src, detail::encoding_descriptor<integer_t> &desc)
 	{
 		byte_t nbits = static_cast<byte_t>(*src++);
 		if (nbits == 0) {
@@ -199,8 +193,7 @@ struct encoding_metadata
 		}
 	}
 
-	void
-	encode(dst_bytes_t &dst) const
+	void encode(dst_bytes_t &dst) const
 	{
 		encode_basic(dst, value_desc);
 		if (value_desc.encoding == encoding_t::bitpfr) {
@@ -210,8 +203,7 @@ struct encoding_metadata
 		}
 	}
 
-	void
-	decode(src_bytes_t &src)
+	void decode(src_bytes_t &src)
 	{
 		decode_basic(src, value_desc);
 		if (value_desc.encoding == encoding_t::bitpfr) {
@@ -222,13 +214,12 @@ struct encoding_metadata
 	}
 };
 
-template<typename CharT, typename Traits, typename T>
-std::basic_ostream<CharT, Traits>&
+template <typename CharT, typename Traits, typename T>
+std::basic_ostream<CharT, Traits> &
 operator<<(std::basic_ostream<CharT, Traits> &os, const encoding_metadata<T> &meta)
 {
 	os << "encoding: " << static_cast<int>(meta.value_desc.encoding)
-	   << ", origin: " << meta.value_desc.origin
-	   << ", nbits: " << meta.value_desc.nbits;
+	   << ", origin: " << meta.value_desc.origin << ", nbits: " << meta.value_desc.nbits;
 	return os;
 }
 
@@ -240,9 +231,8 @@ public:
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 	using metadata = encoding_metadata<original_t>;
 
-	template<typename Iter>
-	static void
-	select(metadata &meta, Iter const src, Iter const end)
+	template <typename Iter>
+	static void select(metadata &meta, Iter const src, Iter const end)
 	{
 		//
 		// Collect basic value statistics.
@@ -267,7 +257,8 @@ public:
 			original_t value = vstat.min();
 			meta.value_desc.encoding = encoding_t::naught;
 			meta.value_desc.dataspace = 0;
-			meta.value_desc.metaspace = varint_codec<original_t>::value_space(value);
+			meta.value_desc.metaspace
+				= varint_codec<original_t>::value_space(value);
 			meta.value_desc.origin = value;
 			return;
 		}
@@ -302,13 +293,16 @@ public:
 			noutliers -= n;
 
 			// The memory required to encode all regular bits.
-			size_t basic_dataspace = bitpck_codec<unsigned_t>::space(vstat.nvalues(), nbits);
+			size_t basic_dataspace
+				= bitpck_codec<unsigned_t>::space(vstat.nvalues(), nbits);
 
 			// Take into account the outliers number and two nbits values.
-			size_t extra_metaspace = 2 + varint_codec<size_t>::value_space(noutliers);
+			size_t extra_metaspace
+				= 2 + varint_codec<size_t>::value_space(noutliers);
 
 			// The memory required to bit-pack the outliers.
-			size_t valpck = bitpck_codec<unsigned_t>::space(noutliers, nbits_max - nbits);
+			size_t valpck
+				= bitpck_codec<unsigned_t>::space(noutliers, nbits_max - nbits);
 
 			// The memory required to varint-encode the outliers.
 			size_t valvar = 0;
@@ -333,8 +327,9 @@ public:
 			size_t indmin = bitpck_codec<size_t>::space(noutliers, 1);
 			if (indmin > vstat.nvalues())
 				indmin = vstat.nvalues();
-			size_t estimate = (basic_metaspace + extra_metaspace
-					   + basic_dataspace + value_dataspace + indmin);
+			size_t estimate = (basic_metaspace + extra_metaspace + basic_dataspace
+					   + value_dataspace
+					   + indmin);
 			size_t selected = meta.value_desc.dataspace + meta.value_desc.metaspace;
 			if (estimate >= selected)
 				continue;
@@ -367,8 +362,9 @@ public:
 				index_dataspace = indvar;
 			}
 
-			size_t required = (basic_metaspace + extra_metaspace
-					   + basic_dataspace + value_dataspace + index_dataspace);
+			size_t required = (basic_metaspace + extra_metaspace + basic_dataspace
+					   + value_dataspace
+					   + index_dataspace);
 			if (required < selected) {
 				meta.value_desc.encoding = encoding_t::bitpfr;
 				meta.value_desc.origin = vstat.min();
@@ -381,14 +377,14 @@ public:
 				meta.outlier_index_desc.nbits = indnbits;
 
 				meta.value_desc.metaspace = basic_metaspace + extra_metaspace;
-				meta.value_desc.dataspace = basic_dataspace + value_dataspace + index_dataspace;
+				meta.value_desc.dataspace
+					= basic_dataspace + value_dataspace + index_dataspace;
 			}
 		}
 	}
 
-	template<typename Iter>
-	static void
-	encode(dst_bytes_t &dst, Iter src, Iter const end, metadata &meta)
+	template <typename Iter>
+	static void encode(dst_bytes_t &dst, Iter src, Iter const end, metadata &meta)
 	{
 		if (meta.value_desc.encoding == encoding_t::bitpfr)
 			encode_bitpfr(dst, src, end, meta);
@@ -396,9 +392,8 @@ public:
 			encode_basic(dst, src, end, meta.value_desc);
 	}
 
-	template<typename Iter>
-	static void
-	decode(Iter dst, Iter const end, src_bytes_t &src, metadata &meta)
+	template <typename Iter>
+	static void decode(Iter dst, Iter const end, src_bytes_t &src, metadata &meta)
 	{
 		if (meta.value_desc.encoding == encoding_t::bitpfr)
 			decode_bitpfr(dst, end, src, meta);
@@ -407,12 +402,13 @@ public:
 	}
 
 private:
-
-	template<typename integer_t>
-	static void
-	compare(detail::encoding_descriptor<integer_t> &desc,
-		encoding_t encoding, size_t metaspace, size_t dataspace,
-		integer_t origin, size_t nbits)
+	template <typename integer_t>
+	static void compare(detail::encoding_descriptor<integer_t> &desc,
+			    encoding_t encoding,
+			    size_t metaspace,
+			    size_t dataspace,
+			    integer_t origin,
+			    size_t nbits)
 	{
 		if ((dataspace + metaspace) < (desc.dataspace + desc.metaspace)) {
 			desc.encoding = encoding;
@@ -423,11 +419,11 @@ private:
 		}
 	}
 
-	template<typename I, typename Iter>
-	static void
-	select_basic(detail::encoding_descriptor<I> &desc,
-		     const integer_stats<I> &stat,
-		     Iter src, Iter const end)
+	template <typename I, typename Iter>
+	static void select_basic(detail::encoding_descriptor<I> &desc,
+				 const integer_stats<I> &stat,
+				 Iter src,
+				 Iter const end)
 	{
 		size_t dataspace, metaspace, nbits;
 
@@ -499,12 +495,13 @@ private:
 		compare(desc, encoding_t::varfor, metaspace, vfspace, stat.min(), 0);
 	}
 
-	template<typename I, typename Iter>
-	static void
-	encode_basic(dst_bytes_t &dst, Iter src, Iter const end,
-		     const detail::encoding_descriptor<I> &desc)
+	template <typename I, typename Iter>
+	static void encode_basic(dst_bytes_t &dst,
+				 Iter src,
+				 Iter const end,
+				 const detail::encoding_descriptor<I> &desc)
 	{
-		switch(desc.encoding) {
+		switch (desc.encoding) {
 		case encoding_t::bitpfr:
 			throw std::logic_error("not a basic encoding");
 		case encoding_t::naught:
@@ -517,8 +514,8 @@ private:
 			varint_codec<I, zigzag_codec<I>>::encode(dst, src, end);
 			break;
 		case encoding_t::varfor:
-			varint_codec<I, origin_codec<I>>::encode(dst, src, end,
-								 origin_codec<I>(desc.origin));
+			varint_codec<I, origin_codec<I>>::encode(
+				dst, src, end, origin_codec<I>(desc.origin));
 			break;
 		case encoding_t::bitpck:
 			bitpck_codec<I>::encode(dst, src, end, desc.nbits);
@@ -530,12 +527,13 @@ private:
 		}
 	}
 
-	template<typename I, typename Iter>
-	static void
-	decode_basic(Iter dst, Iter const end, src_bytes_t &src,
-		     const detail::encoding_descriptor<I> &desc)
+	template <typename I, typename Iter>
+	static void decode_basic(Iter dst,
+				 Iter const end,
+				 src_bytes_t &src,
+				 const detail::encoding_descriptor<I> &desc)
 	{
-		switch(desc.encoding) {
+		switch (desc.encoding) {
 		case encoding_t::bitpfr:
 			throw std::logic_error("not a basic encoding");
 		case encoding_t::naught:
@@ -548,8 +546,8 @@ private:
 			varint_codec<I, zigzag_codec<I>>::decode(dst, end, src);
 			break;
 		case encoding_t::varfor:
-			varint_codec<I, origin_codec<I>>::decode(dst, end, src,
-								 origin_codec<I>(desc.origin));
+			varint_codec<I, origin_codec<I>>::decode(
+				dst, end, src, origin_codec<I>(desc.origin));
 			break;
 		case encoding_t::bitpck:
 			bitpck_codec<I>::decode(dst, end, src, desc.nbits);
@@ -561,29 +559,29 @@ private:
 		}
 	}
 
-	template<typename Iter>
-	static void
-	encode_bitpfr(dst_bytes_t &dst, Iter src, Iter const end, metadata &meta)
+	template <typename Iter>
+	static void encode_bitpfr(dst_bytes_t &dst, Iter src, Iter const end, metadata &meta)
 	{
 		typename bitpfr_codec<original_t>::exceptions outliers;
 
 		// Encode the regular values and collect the outliers info.
 		typename bitpfr_codec<original_t>::parameters params(
-				meta.value_desc.origin,
-				meta.value_desc.nbits,
-				outliers);
+			meta.value_desc.origin, meta.value_desc.nbits, outliers);
 		bitpfr_codec<original_t>::encode(dst, src, end, params);
 
 		// Encode the outliers info.
-		encode_basic(dst, outliers.indices.begin(), outliers.indices.end(),
+		encode_basic(dst,
+			     outliers.indices.begin(),
+			     outliers.indices.end(),
 			     meta.outlier_index_desc);
-		encode_basic(dst, outliers.values.begin(), outliers.values.end(),
+		encode_basic(dst,
+			     outliers.values.begin(),
+			     outliers.values.end(),
 			     meta.outlier_value_desc);
 	}
 
-	template<typename Iter>
-	static void
-	decode_bitpfr(Iter dst, Iter const end, src_bytes_t &src, metadata &meta)
+	template <typename Iter>
+	static void decode_bitpfr(Iter dst, Iter const end, src_bytes_t &src, metadata &meta)
 	{
 		typename bitpfr_codec<original_t>::exceptions outliers;
 
@@ -593,16 +591,18 @@ private:
 
 		// Decode the regular values.
 		typename bitpfr_codec<original_t>::parameters params(
-				meta.value_desc.origin,
-				meta.value_desc.nbits,
-				outliers);
+			meta.value_desc.origin, meta.value_desc.nbits, outliers);
 		bitpfr_codec<original_t>::decode_basic(dst, end, src, params);
 
 		// Decode the outliers info.
-		decode_basic(outliers.indices.begin(), outliers.indices.end(),
-			     src, meta.outlier_index_desc);
-		decode_basic(outliers.values.begin(), outliers.values.end(),
-			     src, meta.outlier_value_desc);
+		decode_basic(outliers.indices.begin(),
+			     outliers.indices.end(),
+			     src,
+			     meta.outlier_index_desc);
+		decode_basic(outliers.values.begin(),
+			     outliers.values.end(),
+			     src,
+			     meta.outlier_value_desc);
 
 		// Patch the outlier values.
 		bitpfr_codec<original_t>::decode_patch(dst, params);

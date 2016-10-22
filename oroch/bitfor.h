@@ -24,8 +24,8 @@
 #ifndef OROCH_BITFOR_H_
 #define OROCH_BITFOR_H_
 
-#include "common.h"
 #include "bitpck.h"
+#include "common.h"
 #include "origin.h"
 
 namespace oroch {
@@ -38,7 +38,7 @@ namespace oroch {
 // The base value must be lower than or equal to the minimum encoded integer.
 // This ensures that only unsigned integers get to be bit-packed.
 //
-template<typename T>
+template <typename T>
 class bitfor_codec
 {
 public:
@@ -47,8 +47,7 @@ public:
 
 	struct parameters : public origin_codec<original_t>
 	{
-		parameters(original_t f, size_t n)
-		: origin_codec<original_t>(f), nbits(n)
+		parameters(original_t f, size_t n) : origin_codec<original_t>(f), nbits(n)
 		{
 		}
 
@@ -57,22 +56,19 @@ public:
 
 	using basic_codec = bitpck_codec<original_t, parameters>;
 
-	template<typename Iter>
-	static void
-	encode(dst_bytes_t &dst, Iter src, Iter end, const parameters &params)
+	template <typename Iter>
+	static void encode(dst_bytes_t &dst, Iter src, Iter end, const parameters &params)
 	{
 		basic_codec::encode(dst, src, end, params.nbits, params);
 	}
 
-	template<typename Iter>
-	static void
-	decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
+	template <typename Iter>
+	static void decode(Iter dst, Iter end, src_bytes_t &src, const parameters &params)
 	{
 		basic_codec::decode(dst, end, src, params.nbits, params);
 	}
 
-	static original_t
-	fetch(src_bytes_t src, const size_t index, const parameters &params)
+	static original_t fetch(src_bytes_t src, const size_t index, const parameters &params)
 	{
 		return basic_codec::fetch(src, index, params.nbits, params);
 	}

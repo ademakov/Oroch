@@ -5,7 +5,8 @@
 
 #define INTS 128
 
-TEST_CASE("normal value codec", "[normal]") {
+TEST_CASE("normal value codec", "[normal]")
+{
 	using codec = oroch::normal_codec<int32_t>;
 	std::array<uint8_t, codec::space(INTS)> bytes;
 	std::array<uint32_t, INTS> integers;

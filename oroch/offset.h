@@ -41,28 +41,25 @@ namespace oroch {
 // first element is encoded with the rest, then it could be equal to
 // the origin and has to be exempted from the offset application.
 //
-template<typename T, T offset, bool taken_out>
+template <typename T, T offset, bool taken_out>
 class offset_codec
 {
 public:
 	using original_t = T;
 	using unsigned_t = typename integer_traits<original_t>::unsigned_t;
 
-	offset_codec(original_t origin)
-	: origin_{origin + (taken_out ? offset : 0)}
+	offset_codec(original_t origin) : origin_{origin + (taken_out ? offset : 0)}
 	{
 	}
 
-	unsigned_t
-	value_encode(original_t v)
+	unsigned_t value_encode(original_t v)
 	{
 		unsigned_t u = unsigned_t(v - origin_);
 		origin_ = v + offset;
 		return u;
 	}
 
-	original_t
-	value_decode(unsigned_t u)
+	original_t value_decode(unsigned_t u)
 	{
 		original_t v = original_t(origin_ + u);
 		origin_ = v + offset;

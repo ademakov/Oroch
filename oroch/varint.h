@@ -53,8 +53,7 @@ public:
 
 	// The number of bytes needed to encode an integer with the given
 	// number of significant bits.
-	static constexpr size_t
-	nbits_space(size_t nbits)
+	static constexpr size_t nbits_space(size_t nbits)
 	{
 		return (nbits + 6) / 7;
 	}
@@ -64,8 +63,7 @@ public:
 	static constexpr size_t nbytemax = nbits_space(integer_traits<original_t>::nbits);
 
 	// Get the number of bytes needed to encode a given integer value.
-	static size_t
-	value_space(original_t src, value_codec vcodec = value_codec())
+	static size_t value_space(original_t src, value_codec vcodec = value_codec())
 	{
 		unsigned_t value = vcodec.value_encode(src);
 		if (value == 0)
@@ -84,8 +82,7 @@ public:
 		*dst++ = byte_t(value);
 	}
 
-	static original_t
-	value_decode(src_bytes_t &src, value_codec vcodec = value_codec())
+	static original_t value_decode(src_bytes_t &src, value_codec vcodec = value_codec())
 	{
 		unsigned_t value = *src++;
 		if ((value & 0x80) != 0) {
@@ -94,7 +91,7 @@ public:
 			unsigned_t byte = *src++;
 			if ((byte & 0x80) == 0) {
 				value |= byte << 7;
-			} else  {
+			} else {
 				value |= (byte & 0x7f) << 7;
 
 				byte = *src++;
@@ -103,7 +100,7 @@ public:
 				} else {
 					value |= (byte & 0x7f) << 14;
 
-					for (unsigned shift = 21; ; shift += 7) {
+					for (unsigned shift = 21;; shift += 7) {
 						byte = *src++;
 						if ((byte & 0x80) == 0) {
 							value |= byte << shift;
@@ -124,9 +121,8 @@ public:
 	}
 
 	// Get the number of bytes needed to encode a given integer sequence.
-	template<typename Iter>
-	static size_t
-	space(Iter src, Iter const end, value_codec vcodec = value_codec())
+	template <typename Iter>
+	static size_t space(Iter src, Iter const end, value_codec vcodec = value_codec())
 	{
 		size_t count = 0;
 		while (src != end)
@@ -134,7 +130,7 @@ public:
 		return count;
 	}
 
-	template<typename Iter>
+	template <typename Iter>
 	static void
 	encode(dst_bytes_t &dst, Iter src, Iter const end, value_codec vcodec = value_codec())
 	{
@@ -142,7 +138,7 @@ public:
 			value_encode(dst, *src++, vcodec);
 	}
 
-	template<typename Iter>
+	template <typename Iter>
 	static void
 	decode(Iter dst, Iter const end, src_bytes_t &src, value_codec vcodec = value_codec())
 	{

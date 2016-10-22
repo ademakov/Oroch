@@ -1,12 +1,12 @@
-#include <cstdlib>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
 #include <oroch/varint.h>
 
-#define SIZE	10000000
-#define REPEAT	100
+#define SIZE 10000000
+#define REPEAT 100
 
 static std::vector<uint32_t> v, v2;
 static std::vector<uint8_t> x;
