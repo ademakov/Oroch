@@ -73,6 +73,6 @@ TEST_CASE("bitfor codec fetch", "[bitfor]")
 	codec::encode(b_it, i_it, integers.end(), params);
 
 	b_it = bytes.begin();
-	for (int i = 0; i < INTS; i++)
+	for (unsigned int i = 0; i < INTS; i++)
 		REQUIRE(codec::fetch(bytes.begin(), i, params) == (i + FREF));
 }
