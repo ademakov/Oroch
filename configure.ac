@@ -30,7 +30,7 @@ dnl Checks for header files.
 #AC_CHECK_HEADERS([xmmintrin.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
-AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
+AX_CXX_COMPILE_STDCXX_17([noext], [mandatory])
 
 dnl Checks for library functions.
 
