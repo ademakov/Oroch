@@ -143,7 +143,7 @@ struct encoding_metadata
 		case encoding_t::bitpfr:
 		case encoding_t::bitfor:
 			varint_codec<integer_t>::value_encode(dst, desc.origin);
-		// no break at the end of case
+			[[fallthrough]];
 		case encoding_t::bitpck:
 			*dst++ = desc.nbits;
 			break;
@@ -167,7 +167,7 @@ struct encoding_metadata
 		case encoding_t::bitpfr:
 		case encoding_t::bitfor:
 			varint_codec<integer_t>::value_decode(desc.origin, src);
-		// no break at the end of case
+			[[fallthrough]];
 		case encoding_t::bitpck:
 			desc.nbits = *src++;
 			break;
