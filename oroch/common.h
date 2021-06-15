@@ -24,8 +24,6 @@
 #ifndef OROCH_COMMON_H_
 #define OROCH_COMMON_H_
 
-#include "config.h"
-
 namespace oroch {
 
 typedef unsigned char byte_t;
