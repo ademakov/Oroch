@@ -1,5 +1,5 @@
 
-include_HEADERS = \
+pkginclude_HEADERS = \
     bitfor.h \
     bitpck.h \
     bitpfr.h \
