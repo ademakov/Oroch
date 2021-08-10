@@ -242,16 +242,16 @@ public:
 			   size_t nbits,
 			   value_codec vcodec = value_codec())
 	{
-		size_t c = capacity(nbits);
+		const size_t c = capacity(nbits);
 		for (;;) {
-			Iter block_end = dst + c;
-			if (block_end > end) {
-				if (dst != end)
+		        const auto d = std::distance(dst, end);
+			if (size_t(d) < c) {
+				if (d > 0)
 					block_decode(dst, end, src, nbits, vcodec);
 				break;
 			}
 			block_decode(dst, src, nbits, vcodec);
-			dst = block_end;
+			dst += c;
 		}
 	}
 
