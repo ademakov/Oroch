@@ -244,7 +244,7 @@ public:
 	{
 		const size_t c = capacity(nbits);
 		for (;;) {
-		        const auto d = std::distance(dst, end);
+			const auto d = std::distance(dst, end);
 			if (size_t(d) < c) {
 				if (d > 0)
 					block_decode(dst, end, src, nbits, vcodec);
