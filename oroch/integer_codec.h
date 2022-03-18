@@ -343,7 +343,7 @@ public:
 					continue;
 
 				size_t i = cur - src;
-				unsigned_t j = index_codec.value_encode(i);
+				size_t j = index_codec.value_encode(i);
 				size_t inb = integer_traits<size_t>::usedcount(j);
 				if (indnbits < inb)
 					indnbits = inb;
